@@ -1,0 +1,489 @@
+<?xml version='1.0'?>
+<definition>
+    <group type="NXentry" name="entry">
+        <field type="string" name="end_time"/>
+        <field type="string" name="definition"/>
+        <group type="NXinstrument" name="instrument">
+            <group type="NXsource" name="source">
+                <field type="string" name="name"/>
+                <field type="string" name="type"/>
+                <field type="string" name="probe"/>
+            </group>
+            <group type="NXdetector" name="detector">
+                <link target="/entry/scan/data/image/value" name="data"/>
+                <link target="/entry/scan/data/image_key/value" name="image_key"/>
+                <field type="float32" name="y_pixel_size"/>
+                <field type="float32" name="distance"/>
+                <field type="float32" name="x_pixel_size"/>
+                <field type="float32" name="y_rotation_axis_pixel_position"/>
+                <field type="float32" name="x_rotation_axis_pixel_position"/>
+            </group>
+            <group type="NXmonitor" name="monitor">
+                <field type="float32" name="data">
+                    <dimensions rank="1">
+                        <dim value="0" index="1"/>
+                    </dimensions>
+                </field>
+            </group>
+        </group>
+        <field type="string" name="start_time"/>
+        <field type="string" name="title"/>
+        <group type="NXdata" name="data">
+            <link target="/entry/instrument/detector/image_key" name="image_key"/>
+            <link target="/entry/sample/rotation_angle" name="rotation_angle"/>
+            <link target="/entry/instrument/detector/data" name="data"/>
+        </group>
+        <group type="NXcollection" name="hardware">
+            <group type="NXcollection" name="multipleaxis" src="p07ct/micos/multipleaxis">
+                <group type="NXlog" name="PosZ">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="RotX">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="RotY">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="D" src="p07ct/micos/D">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m4" src="p07ct/tripod/ccd_m4">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m3" src="p07ct/tripod/ccd_m3">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m5" src="p07ct/tripod/ccd_m5">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m6" src="p07ct/tripod/ccd_m6">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m7" src="p07ct/tripod/ccd_m7">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m8" src="p07ct/tripod/ccd_m8">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m1" src="p07ct/tripod/ccd_m1">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="ccd_m2" src="p07ct/tripod/ccd_m2">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="pusher" src="p07ct/tripod/pusher">
+                <group type="NXlog" name="PosX">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="RotZ">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="pods" src="p07ct/tripod/pods">
+                <group type="NXlog" name="PosZ">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="RotX">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="RotY">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="s_stage_z" src="p07ct/aerotech/s_stage_z">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="axis_y" src="p07ct/attocubes/axis_y">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="s_rot" src="p07ct/aerotech/s_rot">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="s_vert" src="p07ct/aerotech/s_vert">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="axis_t" src="p07ct/attocubes/axis_t">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="axis_x" src="p07ct/attocubes/axis_x">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="s_stage_rotx" src="p07ct/aerotech/s_stage_rotx">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="axis_p" src="p07ct/attocubes/axis_p">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="axis_z" src="p07ct/attocubes/axis_z">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="s_stage_roty" src="p07ct/aerotech/s_stage_roty">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="o_mirror" src="p07ct/aerotech/o_mirror">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="beam_current" src="/TINE/PETRA/GLOBALS/#keyword/BeamCurrent">
+                <group type="NXlog" name="current">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit3_08" src="tango://hzgpp07eh3:10000/p07/galildmcslit/slit3.08">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit_08" src="tango://haspp07oh2:10000/p07/galildmcslit/slit.08">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="OH3_06" src="tango://hzgpp07oh3:10000/p07/galildmcslit/OH3.06">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="exp_03" src="tango://hzgpp07oh1:10000/p07/slt/exp.03">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="OH3_08" src="tango://hzgpp07oh3:10000/p07/galildmcslit/OH3.08">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="OH3_07" src="tango://hzgpp07oh3:10000/p07/galildmcslit/OH3.07">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="sbm_lateral" src="tango://hzgpp07oh1:10000/p07/sbmmotor/sbm_lateral">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit_07" src="tango://haspp07oh2:10000/p07/galildmcslit/slit.07">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_2nd_lateral"
+                   src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_2nd_lateral">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_2nd_pitch" src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_2nd_pitch">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="sbm_pitch" src="tango://hzgpp07oh1:10000/p07/sbmmotor/sbm_pitch">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_2nd_roll" src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_2nd_roll">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit3_07" src="tango://hzgpp07eh3:10000/p07/galildmcslit/slit3.07">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_2nd_longitudinal"
+                   src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_2nd_longitudinal">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_2nd_yaw" src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_2nd_yaw">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_1st_roll" src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_1st_roll">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit_05" src="tango://haspp07oh2:10000/p07/galildmcslit/slit.05">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="exp_04" src="tango://hzgpp07oh1:10000/p07/slt/exp.04">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit_06" src="tango://haspp07oh2:10000/p07/galildmcslit/slit.06">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_1st_yaw" src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_1st_yaw">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="sbm_roll" src="tango://hzgpp07oh1:10000/p07/sbmmotor/sbm_roll">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="sbm_yaw" src="tango://hzgpp07oh1:10000/p07/sbmmotor/sbm_yaw">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="Gap" src="tango://hzgpp07oh1:10000/p07/undulator/01">
+                <group type="NXlog" name="Gap">
+                    <field type="float32" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit3_05" src="tango://hzgpp07eh3:10000/p07/galildmcslit/slit3.05">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="slit3_06" src="tango://hzgpp07eh3:10000/p07/galildmcslit/slit3.06">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="dcm_1st_pitch" src="tango://hzgpp07oh1:10000/p07/dcmmotor/dcm_1st_pitch">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="OH3_05" src="tango://hzgpp07oh3:10000/p07/galildmcslit/OH3.05">
+                <group type="NXlog" name="Position">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="pco">
+                <group type="NXobject" name="camera">
+                    <field type="float32" name="px_size"/>
+                    <field type="int32" name="sensor_xsize"/>
+                    <field type="int32" name="sensor_ysize"/>
+                    <field type="int32" name="binx"/>
+                    <field type="int32" name="biny"/>
+                    <field type="int32" name="x0"/>
+                    <field type="int32" name="y0"/>
+                    <field type="int32" name="xsize"/>
+                    <field type="int32" name="ysize"/>
+                </group>
+                <group type="NXobject" name="calibration">
+                    <field type="float32" name="magnification"/>
+                    <field type="string" name="mtf_name"/>
+                    <field type="float32" name="resolution"/>
+                    <field type="float32" name="energy"/>
+                    <field type="float32" name="s_in_pos"/>
+                    <field type="float32" name="s_out_dist"/>
+                    <field type="float32" name="o_focus"/>
+                    <field type="float32" name="o_aperture"/>
+                    <field type="float32" name="o_loms_changer"/>
+                    <field type="float32" name="o_ccd_high"/>
+                    <field type="string" name="screen"/>
+                    <field type="uint32" name="exptime"/>
+                </group>
+            </group>
+            <group type="NXcollection" name="fli">
+                <group type="NXobject" name="camera">
+                    <field type="float32" name="px_size"/>
+                    <field type="int32" name="sensor_xsize"/>
+                    <field type="int32" name="sensor_ysize"/>
+                    <field type="int32" name="binx"/>
+                    <field type="int32" name="biny"/>
+                    <field type="int32" name="x0"/>
+                    <field type="int32" name="y0"/>
+                    <field type="int32" name="xsize"/>
+                    <field type="int32" name="ysize"/>
+                </group>
+                <group type="NXobject" name="calibration">
+                    <field type="float32" name="magnification"/>
+                    <field type="string" name="mtf_name"/>
+                    <field type="float32" name="resolution"/>
+                    <field type="float32" name="energy"/>
+                    <field type="float32" name="s_in_pos"/>
+                    <field type="float32" name="s_out_dist"/>
+                    <field type="float32" name="o_focus"/>
+                    <field type="float32" name="o_aperture"/>
+                    <field type="float32" name="o_loms_changer"/>
+                    <field type="float32" name="o_ccd_high"/>
+                    <field type="string" name="screen"/>
+                    <field type="uint32" name="exptime"/>
+                </group>
+            </group>
+        </group>
+        <group type="NXobject" name="scan">
+            <group type="NXcollection" name="data">
+                <group type="NXlog" name="s_rot">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="s_vert">
+                    <field type="float64" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="image_key">
+                    <field type="int32" name="value"/>
+                    <field type="uint64" name="time"/>
+                </group>
+                <group type="NXlog" name="image">
+                    <field type="uint32" name="value">
+                        <dimensions rank="3">
+                            <dim index="0" value="0"/>
+                            <dim index="1" value="512"/>
+                            <dim index="2" value="512"/>
+                        </dimensions>
+                    </field>
+                    <field type="uint64" name="time"/>
+                </group>
+            </group>
+            <field type="int32" name="n_dark"/>
+            <field type="int32" name="n_ref"/>
+            <field type="int32" name="n_img"/>
+            <field type="int32" name="n_angle"/>
+            <field type="int32" name="mode"/>
+        </group>
+        <group type="NXobject" name="beamtime">
+            <field type="string" name="name"/>
+            <field type="string" name="application_id"/>
+            <field type="string" name="proposal_id"/>
+            <field type="string" name="principle_investigator"/>
+            <field type="string" name="hzg_support"/>
+            <field type="string" name="start"/>
+        </group>
+        <group type="NXobject" name="beamline">
+            <field type="string" name="name"/>
+            <field type="string" name="experiment"/>
+        </group>
+        <group type="NXsample" name="sample">
+            <field type="string" name="name"/>
+            <field type="string" name="id"/>
+            <field type="string" name="owner"/>
+            <field type="float32" name="rotation_angle">
+                <dimensions rank="1">
+                    <dim value="0" index="1"/>
+                </dimensions>
+            </field>
+            <field type="float32" name="z_translation">
+                <dimensions rank="1">
+                    <dim value="0" index="1"/>
+                </dimensions>
+            </field>
+            <field type="float32" name="x_translation">
+                <dimensions rank="1">
+                    <dim value="0" index="1"/>
+                </dimensions>
+            </field>
+            <field type="float32" name="y_translation">
+                <dimensions rank="1">
+                    <dim value="0" index="1"/>
+                </dimensions>
+            </field>
+        </group>
+    </group>
+</definition>

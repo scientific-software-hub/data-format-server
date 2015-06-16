@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition>
+    <group name="entry" type="NXentry">
+        <field name="end_time" type="string"/>
+        <field name="definition" type="string"/>
+        <group name="instrument" type="NXinstrument">
+            <group name="source" type="NXsource">
+                <field name="name" type="string"/>
+                <field name="type" type="string"/>
+                <field name="probe" type="string"/>
+            </group>
+            <group name="detector" type="NXdetector">
+                <field name="data" type="int32">
+                    <dimensions rank="3">
+                        <dim index="1" value="0"/>
+                        <dim index="2" value="4096"/>
+                        <dim index="3" value="4096"/>
+                    </dimensions>
+                </field>
+                <field name="y_pixel_size" type="float32"/>
+                <field name="distance" type="float32"/>
+                <field name="x_pixel_size" type="float32"/>
+                <field name="image_key" type="int32">
+                    <dimensions rank="1">
+                        <dim index="1" value="0"/>
+                    </dimensions>
+                </field>
+                <field name="y_rotation_axis_pixel_position" type="float32"/>
+                <field name="x_rotation_axis_pixel_position" type="float32"/>
+            </group>
+            <group name="monitor" type="NXmonitor">
+                <field name="data" type="float32">
+                    <dimensions rank="1">
+                        <dim index="1" value="0"/>
+                    </dimensions>
+                </field>
+            </group>
+            <group name="sample" type="NXsample">
+                <field name="rotation_angle" type="float32">
+                    <dimensions rank="1">
+                        <dim index="1" value="0"/>
+                    </dimensions>
+                </field>
+                <field name="z_translation" type="float32">
+                    <dimensions rank="1">
+                        <dim index="1" value="0"/>
+                    </dimensions>
+                </field>
+                <field name="name" type="string"/>
+                <field name="x_translation" type="float32">
+                    <dimensions rank="1">
+                        <dim index="1" value="0"/>
+                    </dimensions>
+                </field>
+                <field name="y_translation" type="float32">
+                    <dimensions rank="1">
+                        <dim index="1" value="0"/>
+                    </dimensions>
+                </field>
+            </group>
+        </group>
+        <field name="start_time" type="string"/>
+        <field name="title" type="string"/>
+        <group name="data" type="NXdata">
+            <link name="image_key" target="/entry/instrument/detector/image_key"/>
+            <link name="rotation_angle" target="/entry/sample/rotation_angle"/>
+            <link name="data" target="/entry/instrument/detector/data"/>
+        </group>
+    </group>
+</definition>
