@@ -40,7 +40,7 @@
     </dependencySets>
     <fileSets>
         <fileSet>
-            <directory>src/main/bash</directory>
+            <directory>bin</directory>
             <outputDirectory>/bin</outputDirectory>
             <fileMode>0777</fileMode>
         </fileSet>
