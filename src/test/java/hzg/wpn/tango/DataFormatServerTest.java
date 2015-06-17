@@ -8,6 +8,9 @@ import org.tango.client.ez.data.type.TangoImage;
 import org.tango.client.ez.proxy.TangoProxies;
 import org.tango.client.ez.proxy.TangoProxy;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 /**
  * @author khokhria
  * @since 6/17/15.
@@ -19,7 +22,8 @@ public class DataFormatServerTest {
 
     @Before
     public void before() throws Exception {
-        server.openFile("test.h5");
+        if (Files.deleteIfExists(Paths.get(server.getCwd(), "test.h5")))
+            server.createFile("test.h5");
     }
 
     @After
