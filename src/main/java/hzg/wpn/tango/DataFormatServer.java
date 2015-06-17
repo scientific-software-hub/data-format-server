@@ -6,6 +6,7 @@ import org.tango.server.annotation.Attribute;
 import org.tango.server.annotation.Command;
 import org.tango.server.annotation.Device;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,11 +22,19 @@ public class DataFormatServer {
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
     private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
-
     @Attribute
     private volatile String nxPath = "";
     @Attribute
     private volatile boolean append;
+
+    //TODO move intializations to init
+    {
+        try {
+            Files.createDirectories(cwd);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void main(String[] args) {
         ServerManager.getInstance().start(args, DataFormatServer.class);
