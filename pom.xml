@@ -35,14 +35,19 @@
 
 
     <properties>
-        <commons.version>1.2</commons.version>
+        <commons.version>1.3</commons.version>
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
             <groupId>hzg.wpn.nexus</groupId>
-            <artifactId>libpni-jni</artifactId>
-            <version>1.0.1</version>
+            <artifactId>libpniio-jni</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>hzg.wpn.tango</groupId>

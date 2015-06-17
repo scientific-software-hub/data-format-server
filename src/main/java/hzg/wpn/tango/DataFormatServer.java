@@ -19,11 +19,11 @@ public class DataFormatServer {
     private static final Path XENV_ROOT = Paths.get(System.getProperty("XENV_ROOT") != null ? System.getProperty("XENV_ROOT") : "");
 
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
-    private volatile Path cwd = XENV_ROOT.resolve("var/DataFormatServer");
+    private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
 
     @Attribute
-    private volatile String nxPath;
+    private volatile String nxPath = "";
     @Attribute
     private volatile boolean append;
 
@@ -48,6 +48,11 @@ public class DataFormatServer {
     }
 
     @Attribute
+    public String getCwd() {
+        return cwd.toAbsolutePath().toString();
+    }
+
+    @Attribute
     public void setCwd(String cwd) {
         Path tmp = Paths.get(cwd);
         if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory name is expected here!");
@@ -55,38 +60,15 @@ public class DataFormatServer {
     }
 
     @Attribute
+    public String getNxTemplate() {
+        return nxTemplate.toAbsolutePath().toString();
+    }
+
+    @Attribute
     public void setNxTemplate(String nxTemplateName) {
         Path tmp = Paths.get(nxTemplateName);
         if (!Files.exists(tmp)) throw new IllegalArgumentException("An existing .nxdl.xml file is expected here!");
         nxTemplate = tmp;
-    }
-
-    @Attribute
-    public void setUShortImage(int[][] image) throws Exception {
-        int height = image.length;
-        int width = image[0].length;
-
-        int[] data = new int[height * width];
-
-        for (int i = 0; i < height; ++i) {
-            System.arraycopy(image[i], 0, data, i * width, width);
-        }
-
-        nxFile.write(nxPath, data);
-    }
-
-    @Attribute
-    public void setFloatImage(float[][] image) throws Exception {
-        int height = image.length;
-        int width = image[0].length;
-
-        float[] data = new float[height * width];
-
-        for (int i = 0; i < height; ++i) {
-            System.arraycopy(image[i], 0, data, i * width, width);
-        }
-
-        nxFile.write(nxPath, data);
     }
 
     @Command
@@ -109,26 +91,57 @@ public class DataFormatServer {
 
     @Command
     public void writeInteger(int v) throws Exception {
-        nxFile.write(nxPath, v);
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     public void writeLong(long v) throws Exception {
-        nxFile.write(nxPath, v);
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     public void writeFloat(float v) throws Exception {
-        nxFile.write(nxPath, v);
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     public void writeDouble(double v) throws Exception {
-        nxFile.write(nxPath, v);
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     public void writeString(String v) throws Exception {
-        nxFile.write(nxPath, v);
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, v, append);
+    }
+
+    @Command
+    public void write16bitImage(short[] data) throws Exception {
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, data, append);
+    }
+
+    @Command
+    public void writeARGBImage(int[] data) throws Exception {
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, data, append);
+    }
+
+    @Command
+    public void writeTIFFImage(float[] data) throws Exception {
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+        nxFile.write(nxPath, data, append);
     }
 }

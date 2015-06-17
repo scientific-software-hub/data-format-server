@@ -10,11 +10,11 @@
                 <field name="probe" type="string"/>
             </group>
             <group name="detector" type="NXdetector">
-                <field name="data" type="int32">
+                <field name="data" type="int16">
                     <dimensions rank="3">
                         <dim index="1" value="0"/>
-                        <dim index="2" value="4096"/>
-                        <dim index="3" value="4096"/>
+                        <dim index="2" value="512"/>
+                        <dim index="3" value="512"/>
                     </dimensions>
                 </field>
                 <field name="y_pixel_size" type="float32"/>
