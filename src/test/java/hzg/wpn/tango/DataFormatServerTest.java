@@ -22,8 +22,8 @@ public class DataFormatServerTest {
 
     @Before
     public void before() throws Exception {
-        if (Files.deleteIfExists(Paths.get(server.getCwd(), "test.h5")))
-            server.createFile("test.h5");
+        Files.deleteIfExists(Paths.get(server.getCwd(), "test.h5"));
+        server.createFile("test.h5");
     }
 
     @After

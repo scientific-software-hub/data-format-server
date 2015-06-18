@@ -12,4 +12,4 @@ echo "Using INSTANCE_NAME=$INSTANCE_NAME"
 JAVA_OPTS="-server -Xmx1G -Xshare:off -XX:+UseG1GC"
 echo "Using JAVA_OPTS=$JAVA_OPTS"
 
-java $JAVA_OPTS -cp "$XENV_ROOT/lib/*:$XENV_ROOT/lib/DataFormatServer/*" hzg.wpn.tango.DataFormatServer $INSTANCE_NAME > $XENV_ROOT/var/log/DataFormatServer 2>&1 &
+java $JAVA_OPTS -cp "$XENV_ROOT/lib/*:$XENV_ROOT/lib/DataFormatServer/*" -DXENV_ROOT=$XENV_ROOT -Dlog4j.configurationFile=$XENV_ROOT/etc/DataFormatServer/log4j.xml hzg.wpn.tango.DataFormatServer $INSTANCE_NAME > $XENV_ROOT/var/log/DataFormatServer/out 2>&1 &

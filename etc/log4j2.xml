@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="defaultPatternLayout">%p %d{dd-MM-yyyy HH:mm:ss,SSS} [%t - %C{1}] %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${defaultPatternLayout}"/>
+        </Console>
+        <File name="log" fileName="${env:XENV_ROOT}/var/log/DataFormatServer/log.out">
+            <PatternLayout pattern="${defaultPatternLayout}"/>
+        </File>
+        <File name="tango" fileName="${env:XENV_ROOT}/var/log/DataFormatServer/tango.out">
+            <PatternLayout pattern="${defaultPatternLayout}"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="ERROR">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="log"/>
+        </Root>
+        <Logger name="wpn.wpn.tango" level="TRACE">
+            <AppenderRef ref="tango"/>
+        </Logger>
+        <Logger name="org.tango" level="INFO">
+            <AppenderRef ref="tango"/>
+        </Logger>
+        <Logger name="jacorb" level="INFO">
+            <AppenderRef ref="tango"/>
+        </Logger>
+    </Loggers>
+</Configuration>
