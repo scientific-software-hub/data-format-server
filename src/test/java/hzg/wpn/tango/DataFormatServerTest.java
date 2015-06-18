@@ -22,6 +22,7 @@ public class DataFormatServerTest {
 
     @Before
     public void before() throws Exception {
+        Files.createDirectories(Paths.get(server.getCwd()));
         Files.deleteIfExists(Paths.get(server.getCwd(), "test.h5"));
         server.createFile("test.h5");
     }
