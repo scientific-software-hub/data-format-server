@@ -66,5 +66,9 @@
             <link name="rotation_angle" target="/entry/sample/rotation_angle"/>
             <link name="data" target="/entry/instrument/detector/data"/>
         </group>
+        <group name="beam_current" type="NXlog">
+            <field name="value" type="float64"/>
+            <field name="time" type="uint64"/>
+        </group>
     </group>
 </definition>
