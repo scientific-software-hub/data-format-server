@@ -25,8 +25,8 @@ public class DataFormatServer {
 
     private static final Path XENV_ROOT = Paths.get(System.getProperty("XENV_ROOT") != null ? System.getProperty("XENV_ROOT") : "");
 
-    private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
-    private volatile Path cwd = XENV_ROOT.resolve("var");
+    private volatile Path nxTemplate;
+    private volatile Path cwd;
     private volatile NxFile nxFile;
     @Attribute
     private volatile String nxPath = "";
@@ -77,30 +77,29 @@ public class DataFormatServer {
     }
 
 
-    @Attribute
+    @Attribute(isMemorized = true)
     public String getCwd() {
         return cwd.toAbsolutePath().toString();
     }
 
-    @Attribute
+    @Attribute(isMemorized = true)
     public void setCwd(String cwd) {
-        Path tmp = Paths.get(cwd);
+        Path tmp = XENV_ROOT.resolve(cwd);
         if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory name is expected here!");
         this.cwd = tmp;
     }
 
-    @Attribute
+    @Attribute(isMemorized = true)
     public String getNxTemplate() {
         return nxTemplate.toAbsolutePath().toString();
     }
 
-    @Attribute
+    @Attribute(isMemorized = true)
     public void setNxTemplate(String nxTemplateName) {
-        Path tmp = Paths.get(nxTemplateName);
+        Path tmp = XENV_ROOT.resolve(nxTemplateName);
         if (!Files.exists(tmp)) throw new IllegalArgumentException("An existing .nxdl.xml file is expected here!");
         nxTemplate = tmp;
     }
-
 
     private boolean checkWritePermission(String clientId) throws Exception {
         return this.clientId.equals(clientId);
