@@ -25,8 +25,8 @@ public class DataFormatServer {
 
     private static final Path XENV_ROOT = Paths.get(System.getProperty("XENV_ROOT") != null ? System.getProperty("XENV_ROOT") : "");
 
-    private volatile Path nxTemplate;
-    private volatile Path cwd;
+    private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
+    private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
     @Attribute
     private volatile String nxPath = "";

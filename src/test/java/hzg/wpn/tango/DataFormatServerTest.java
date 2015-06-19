@@ -26,7 +26,6 @@ public class DataFormatServerTest {
     public void before() throws Exception {
         doReturn(Thread.currentThread().getName()).when(server).getClientId();
 
-
         Files.createDirectories(Paths.get(server.getCwd()));
         Files.deleteIfExists(Paths.get(server.getCwd(), "test.h5"));
         server.createFile("test.h5");
