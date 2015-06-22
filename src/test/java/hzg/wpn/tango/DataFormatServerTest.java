@@ -46,4 +46,17 @@ public class DataFormatServerTest {
         server.setNxPath("/entry/data/data");
         server.write16bitImage(image.getData());
     }
+
+    @Test
+    @Category(Integration.class)
+    public void writeDoubleNan() throws Exception {
+        TangoProxy dfs = TangoProxies.newDeviceProxyWrapper("tango://hzgcttest:10000/development/dfs/0");
+
+        dfs.executeCommand("openFile", "test.h5");
+
+        dfs.writeAttribute("nxPath", "/entry/instrument/detector/distance");
+        dfs.executeCommand("writeDouble", Double.NaN);
+
+        dfs.executeCommand("closeFile", null);
+    }
 }
