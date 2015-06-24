@@ -1,112 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>hzg.wpn.tango</groupId>
+        <artifactId>server-parent</artifactId>
+        <version>1.6</version>
+    </parent>
 
     <groupId>hzg.wpn.xenv</groupId>
     <artifactId>DataFormatServer</artifactId>
     <version>1.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <developers>
-        <developer>
-            <id>khokhria</id>
-            <name>Igor Khokhriakov</name>
-            <email>igor.khokhriakov@hzg.de</email>
-            <organization>Helmholtz-Zentrum Geesthacht</organization>
-            <organizationUrl>hzg.de</organizationUrl>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:hg:https://bitbucket.org/hzgwpn/jdataformatserver</connection>
-        <developerConnection>scm:hg:ssh://hg@bitbucket.org/hzgwpn/jdataformatserver</developerConnection>
-        <url>ssh://hg@bitbucket.org/hzgwpn/jdataformatserver</url>
-        <tag>${version}</tag>
-    </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>bintray-hzg</id>
-            <url>https://api.bintray.com/maven/hzgde/hzg-wpn-projects/DataFormatServer</url>
-        </repository>
-    </distributionManagement>
-
-
     <properties>
-        <commons.version>1.3</commons.version>
+        <scm.project.name>jdataformatserver</scm.project.name>
+        <distribution.project.name>${project.artifactId}</distribution.project.name>
     </properties>
 
+    <scm>
+        <developerConnection>${scm.developerConnection.prefix}${scm.project.name}</developerConnection>
+    </scm>
+
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>hzg.wpn.nexus</groupId>
             <artifactId>libpniio-jni</artifactId>
             <version>1.0.5</version>
         </dependency>
-        <dependency>
-            <groupId>hzg.wpn.tango</groupId>
-            <artifactId>server-commons</artifactId>
-            <version>${commons.version}</version>
-            <type>pom</type>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly.xml</descriptor>
-                            </descriptors>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>standalone</id>
-            <dependencies>
-                <dependency>
-                    <groupId>hzg.wpn.tango</groupId>
-                    <artifactId>server-commons</artifactId>
-                    <version>${commons.version}</version>
-                    <type>pom</type>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 
     <repositories>
         <repository>
@@ -118,14 +41,4 @@
             <url>http://dl.bintray.com/hzgde/hzg-wpn-projects</url>
         </repository>
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-plugins</id>
-            <name>bintray-plugins</name>
-            <url>http://dl.bintray.com/hzgde/hzg-wpn-projects</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
