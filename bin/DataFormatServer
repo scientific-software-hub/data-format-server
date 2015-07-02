@@ -1,9 +1,9 @@
 #!/bin/bash
 
+XENV_ROOT=/home/khokhria/Projects/hzg.wpn/jDataFormatServer/target/DataFormatServer-2.1-SNAPSHOT/DataFormatServer-2.1-SNAPSHOT
+
 echo "Using JAVA_HOME=$JAVA_HOME"
 echo "Using TANGO_HOST=$TANGO_HOST"
-
-XENV_ROOT=".."
 echo "Using XENV_ROOT=$XENV_ROOT"
 
 INSTANCE_NAME=test
@@ -12,4 +12,50 @@ echo "Using INSTANCE_NAME=$INSTANCE_NAME"
 JAVA_OPTS="-server -Xmx1G -Xshare:off -XX:+UseG1GC"
 echo "Using JAVA_OPTS=$JAVA_OPTS"
 
-java $JAVA_OPTS -cp "$XENV_ROOT/lib/*:$XENV_ROOT/lib/DataFormatServer/*" -DXENV_ROOT=$XENV_ROOT -Dlog4j.configurationFile=$XENV_ROOT/etc/DataFormatServer/log4j.xml hzg.wpn.tango.DataFormatServer $INSTANCE_NAME > $XENV_ROOT/var/log/DataFormatServer/out 2>&1 &
+
+
+
+
+
+DESC="Description"
+NAME=DataFormatServer
+PIDFILE=$XENV_ROOT/var/run/$NAME.pid
+RUN_AS=khokhria
+COMMAND="/usr/bin/java -- $JAVA_OPTS -cp $XENV_ROOT/lib/*:$XENV_ROOT/lib/DataFormatServer/* -DXENV_ROOT=$XENV_ROOT -DNAME=$NAME -Dlogback.configurationFile=$XENV_ROOT/etc/DataFormatServer/logback.xml hzg.wpn.tango.DataFormatServer $INSTANCE_NAME"
+
+d_start() {
+    start-stop-daemon --start --quiet --background --make-pidfile --pidfile $PIDFILE --chuid $RUN_AS --startas $COMMAND
+}
+
+d_stop() {
+    start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    if [ -e $PIDFILE ]
+        then rm $PIDFILE
+    fi
+}
+
+case $1 in
+    start)
+    echo -n "Starting $DESC: $NAME"
+    d_start
+    echo "."
+    ;;
+    stop)
+    echo -n "Stopping $DESC: $NAME"
+    d_stop
+    echo "."
+    ;;
+    restart)
+    echo -n "Restarting $DESC: $NAME"
+    d_stop
+    sleep 1
+    d_start
+    echo "."
+    ;;
+    *)
+    echo "usage: $NAME {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0
