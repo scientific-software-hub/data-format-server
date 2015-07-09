@@ -12,11 +12,6 @@ echo "Using INSTANCE_NAME=$INSTANCE_NAME"
 JAVA_OPTS="-server -Xmx1G -Xshare:off -XX:+UseG1GC"
 echo "Using JAVA_OPTS=$JAVA_OPTS"
 
-
-
-
-
-
 DESC="Description"
 NAME=DataFormatServer
 PIDFILE=$XENV_ROOT/var/run/$NAME.pid
