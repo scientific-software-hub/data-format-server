@@ -228,6 +228,6 @@ public class DataFormatServer {
     @Delete
     @StateMachine(endState = DeviceState.OFF)
     public void delete() throws Exception {
-        nxFile.close();
+        closeFile();
     }
 }
