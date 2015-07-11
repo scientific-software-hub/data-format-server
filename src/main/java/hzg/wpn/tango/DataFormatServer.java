@@ -10,6 +10,7 @@ import org.tango.DeviceState;
 import org.tango.server.ServerManager;
 import org.tango.server.annotation.*;
 import org.tango.server.device.DeviceManager;
+import org.tango.server.pipe.PipeValue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,12 +34,34 @@ public class DataFormatServer {
     @Attribute
     private volatile boolean append;
 
+    @Pipe
+    private volatile PipeValue pipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
     private volatile String clientId;
 
     public static void main(String[] args) {
         ServerManager.getInstance().start(args, DataFormatServer.class);
+    }
+
+    public PipeValue getPipe() {
+        return pipe;
+    }
+
+    public void setPipe(PipeValue v) {
+        pipe = v;
+
+        switch (v.getValue().getName()) {
+            case "status_server":
+                write(new StatusServerBlob(v.getValue()));
+                break;
+            case "camera":
+                write(new CameraBlob(v.getValue()));
+                break;
+            case "unknown":
+                write(new GenericBlob(v.getValue()));
+                break;
+        }
     }
 
     public void setDeviceManager(DeviceManager manager) {
