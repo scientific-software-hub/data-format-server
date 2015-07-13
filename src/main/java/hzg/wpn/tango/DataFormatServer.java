@@ -48,6 +48,15 @@ public class DataFormatServer {
     private volatile DeviceManager deviceManager;
     private volatile String clientId;
 
+    {
+        try {
+            Files.createDirectories(cwd);
+        } catch (IOException e) {
+            logger.error("Can not create cwd: " + cwd.toAbsolutePath().toString(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) {
         ServerManager.getInstance().start(args, DataFormatServer.class);
     }
@@ -63,7 +72,6 @@ public class DataFormatServer {
     public PipeValue getPipe() {
         return pipe;
     }
-
 
     public void setPipe(final PipeValue v) throws Exception {
         pipe = v;
@@ -152,7 +160,6 @@ public class DataFormatServer {
         throw new AssertionError("Should not happen");
     }
 
-
     @Attribute(isMemorized = true)
     public String getCwd() {
         return cwd.toAbsolutePath().toString();
@@ -195,6 +202,7 @@ public class DataFormatServer {
 
     @Command
     public void closeFile() throws Exception {
+        if (nxFile == null) return;
         nxFile.close();
         nxFile = null;
     }
@@ -297,8 +305,8 @@ public class DataFormatServer {
 
     @Init
     @StateMachine(endState = DeviceState.ON)
-    public void init() throws Exception {
-        Files.createDirectories(cwd);
+    public void init() throws IOException {
+
     }
 
     @Delete
