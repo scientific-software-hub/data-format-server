@@ -21,11 +21,12 @@ public class StatusServerBlob implements NexusWriter {
         while (scanner.hasNext()) {
             PipeScanner innerBlobScanner = scanner.nextScanner();
             GenericBlob.Element elementValue = new GenericBlob.Element();
-            elementValue.nxPath = innerBlobScanner.nextString() + "/value";
+            String nxPath = innerBlobScanner.nextString();
+            elementValue.nxPath = nxPath + "/value";
             elementValue.value = innerBlobScanner.nextArray();
 
             GenericBlob.Element elementTime = new GenericBlob.Element();
-            elementValue.nxPath = innerBlobScanner.nextString() + "/time";
+            elementValue.nxPath = nxPath + "/time";
             elementTime.value = innerBlobScanner.nextArray(long[].class);
 
             values.elements.add(elementValue);
