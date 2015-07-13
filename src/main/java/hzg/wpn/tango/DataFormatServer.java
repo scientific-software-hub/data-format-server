@@ -1,6 +1,7 @@
 package hzg.wpn.tango;
 
 import fr.esrf.Tango.ClntIdent;
+import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.JavaClntIdent;
 import fr.esrf.Tango.LockerLanguage;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
@@ -12,9 +13,13 @@ import org.tango.server.annotation.*;
 import org.tango.server.device.DeviceManager;
 import org.tango.server.pipe.PipeValue;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author khokhria
@@ -23,6 +28,7 @@ import java.nio.file.Paths;
 @Device
 public class DataFormatServer {
     private static final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
+    private static final ExecutorService exec = Executors.newSingleThreadExecutor();
 
     private static final Path XENV_ROOT = Paths.get(System.getProperty("XENV_ROOT") != null ? System.getProperty("XENV_ROOT") : "");
 
@@ -34,6 +40,8 @@ public class DataFormatServer {
     @Attribute
     private volatile boolean append;
 
+    @State
+    private volatile DeviceState state;
     @Pipe
     private volatile PipeValue pipe;
     @DeviceManagement
@@ -44,24 +52,69 @@ public class DataFormatServer {
         ServerManager.getInstance().start(args, DataFormatServer.class);
     }
 
+    public DeviceState getState() {
+        return state;
+    }
+
+    public void setState(DeviceState newState) {
+        state = newState;
+    }
+
     public PipeValue getPipe() {
         return pipe;
     }
 
-    public void setPipe(PipeValue v) {
+
+    public void setPipe(final PipeValue v) throws Exception {
         pipe = v;
 
+        setState(DeviceState.RUNNING);
+        Runnable runnable = null;
         switch (v.getValue().getName()) {
             case "status_server":
-                write(new StatusServerBlob(v.getValue()));
+                runnable = new Runnable() {
+                    public void run() {
+                        try {
+                            new StatusServerBlob(v.getValue()).write(nxFile);
+                            setState(DeviceState.ON);
+                        } catch (IOException | DevFailed e) {
+                            logger.error("StatusServerBlob write has failed!", e);
+                            setState(DeviceState.FAULT);
+                        }
+                    }
+                };
                 break;
             case "camera":
-                write(new CameraBlob(v.getValue()));
+                runnable = new Runnable() {
+                    public void run() {
+                        try {
+                            new CameraBlob(v.getValue()).write(nxFile);
+                            setState(DeviceState.ON);
+                        } catch (IOException | DevFailed e) {
+                            logger.error("StatusServerBlob write has failed!", e);
+                            setState(DeviceState.FAULT);
+                        }
+                    }
+                };
                 break;
             case "unknown":
-                write(new GenericBlob(v.getValue()));
+                runnable = new Runnable() {
+                    public void run() {
+                        try {
+                            new GenericBlob(v.getValue()).write(nxFile);
+                            setState(DeviceState.ON);
+                        } catch (IOException | DevFailed e) {
+                            logger.error("StatusServerBlob write has failed!", e);
+                            setState(DeviceState.FAULT);
+                        }
+                    }
+                };
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown blob type: " + v.getValue().getName());
         }
+
+        exec.submit(runnable);
     }
 
     public void setDeviceManager(DeviceManager manager) {
@@ -251,6 +304,13 @@ public class DataFormatServer {
     @Delete
     @StateMachine(endState = DeviceState.OFF)
     public void delete() throws Exception {
-        closeFile();
+        try {
+            exec.shutdown();
+            exec.awaitTermination(3L, TimeUnit.SECONDS);
+            closeFile();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw e;
+        }
     }
 }

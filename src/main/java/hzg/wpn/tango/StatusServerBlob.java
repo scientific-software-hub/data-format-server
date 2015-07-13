@@ -4,33 +4,39 @@ import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DevicePipe;
 import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeScanner;
+import hzg.wpn.nexus.libpniio.jni.NxFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 /**
  * @author Igor Khokhriakov <igor.khokhriakov@hzg.de>
  * @since 11.07.2015
  */
-public class StatusServerBlob {
-    public List<Element> elements = new ArrayList<>();
+public class StatusServerBlob implements NexusWriter {
+    public GenericBlob values = new GenericBlob();
+    public GenericBlob times = new GenericBlob();
 
     public StatusServerBlob(PipeBlob blob) throws DevFailed {
         PipeScanner scanner = new DevicePipe(null, blob);
         while (scanner.hasNext()) {
             PipeScanner innerBlobScanner = scanner.nextScanner();
-            Element element = new Element();
-            element.nxPath = innerBlobScanner.nextString();
-            element.values = innerBlobScanner.nextArray();
-            element.times = innerBlobScanner.nextArray(long[].class);
-            elements.add(element);
+            GenericBlob.Element elementValue = new GenericBlob.Element();
+            elementValue.nxPath = innerBlobScanner.nextString() + "/value";
+            elementValue.value = innerBlobScanner.nextArray();
+
+            GenericBlob.Element elementTime = new GenericBlob.Element();
+            elementValue.nxPath = innerBlobScanner.nextString() + "/time";
+            elementTime.value = innerBlobScanner.nextArray(long[].class);
+
+            values.elements.add(elementValue);
+            times.elements.add(elementTime);
         }
 
     }
 
-    public static class Element {
-        public String nxPath;
-        public Object values;//array
-        public long[] times;
+    @Override
+    public void write(NxFile file) throws IOException {
+        values.write(file);
+        times.write(file);
     }
 }
