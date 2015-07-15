@@ -33,9 +33,7 @@ public class GenericBlob implements NexusWriter {
         PipeScanner scanner = new DevicePipe(null, blob);
         while (scanner.hasNext()) {
             PipeScanner innerScanner = scanner.nextScanner();
-            Element element = new Element();
-            element.nxPath = innerScanner.nextString();
-            element.value = innerScanner.nextArray();
+            Element element = new Element(innerScanner.nextString(), innerScanner.nextArray());
             elements.add(element);
         }
     }
@@ -71,5 +69,10 @@ public class GenericBlob implements NexusWriter {
     public static class Element {
         public String nxPath;
         public Object value;
+
+        public Element(String nxPath, Object value) {
+            this.nxPath = nxPath;
+            this.value = value;
+        }
     }
 }
