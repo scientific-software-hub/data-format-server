@@ -38,7 +38,7 @@ public class DataFormatServer {
     @Attribute
     private volatile String nxPath = "";
     @Attribute
-    private volatile boolean append = true;
+    private volatile boolean append = false;
 
     @State
     private volatile DeviceState state;
