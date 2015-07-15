@@ -29,7 +29,8 @@ public class GenericBlob implements NexusWriter {
     public GenericBlob() {
     }
 
-    public GenericBlob(PipeBlob blob) throws DevFailed {
+    public GenericBlob(PipeBlob blob, boolean append) throws DevFailed {
+        this.append = append;
         PipeScanner scanner = new DevicePipe(null, blob);
         while (scanner.hasNext()) {
             PipeScanner innerScanner = scanner.nextScanner();

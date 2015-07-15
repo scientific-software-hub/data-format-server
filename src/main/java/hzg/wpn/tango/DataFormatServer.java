@@ -38,7 +38,7 @@ public class DataFormatServer {
     @Attribute
     private volatile String nxPath = "";
     @Attribute
-    private volatile boolean append;
+    private volatile boolean append = true;
 
     @State
     private volatile DeviceState state;
@@ -96,7 +96,7 @@ public class DataFormatServer {
                 runnable = new Runnable() {
                     public void run() {
                         try {
-                            new CameraBlob(v.getValue()).write(nxFile);
+                            new CameraBlob(v.getValue(), append).write(nxFile);
                             setState(DeviceState.ON);
                         } catch (IOException | DevFailed e) {
                             logger.error("StatusServerBlob write has failed!", e);
@@ -109,7 +109,7 @@ public class DataFormatServer {
                 runnable = new Runnable() {
                     public void run() {
                         try {
-                            new GenericBlob(v.getValue()).write(nxFile);
+                            new GenericBlob(v.getValue(), append).write(nxFile);
                             setState(DeviceState.ON);
                         } catch (IOException | DevFailed e) {
                             logger.error("StatusServerBlob write has failed!", e);

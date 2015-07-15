@@ -1,0 +1,39 @@
+<?xml version='1.0'?>
+<definition>
+    <group type="NXentry" name="entry">
+        <group type="NXlog" name="string">
+            <field type="string" name="value"/>
+            <field type="uint64" name="time"/>
+        </group>
+        <group type="NXlog" name="double">
+            <field type="float64" name="value"/>
+            <field type="uint64" name="time"/>
+        </group>
+        <group type="NXlog" name="float">
+            <field type="float32" name="value"/>
+            <field type="uint64" name="time"/>
+        </group>
+        <group type="NXlog" name="long">
+            <field type="int64" name="value"/>
+            <field type="uint64" name="time"/>
+        </group>
+        <group type="NXlog" name="int">
+            <field type="int32" name="value"/>
+            <field type="uint64" name="time"/>
+        </group>
+        <group type="NXinstrument" name="instrument">
+            <group type="NXdetector" name="detector">
+                <field type="int16" name="data">
+                    <dimensions rank="3">
+                        <dim value="0" index="1"/>
+                        <dim value="8" index="2"/>
+                        <dim value="4" index="3"/>
+                    </dimensions>
+                </field>
+            </group>
+        </group>
+        <group type="NXdata" name="data">
+            <link target="/entry/instrument/detector/data" name="data"/>
+        </group>
+    </group>
+</definition>
