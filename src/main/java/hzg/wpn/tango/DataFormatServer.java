@@ -1,5 +1,6 @@
 package hzg.wpn.tango;
 
+import com.google.common.base.Preconditions;
 import fr.esrf.Tango.ClntIdent;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.JavaClntIdent;
@@ -76,6 +77,7 @@ public class DataFormatServer {
     public void setPipe(final PipeValue v) throws Exception {
         pipe = v;
 
+        Preconditions.checkState(nxFile != null, "nxFile is null! Is it open?");
         setState(DeviceState.RUNNING);
         Runnable runnable = null;
         switch (v.getValue().getName()) {
@@ -105,7 +107,7 @@ public class DataFormatServer {
                     }
                 };
                 break;
-            case "unknown":
+            case "any":
                 runnable = new Runnable() {
                     public void run() {
                         try {

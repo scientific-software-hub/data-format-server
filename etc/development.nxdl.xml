@@ -2,24 +2,64 @@
 <definition>
     <group type="NXentry" name="entry">
         <group type="NXlog" name="string">
-            <field type="string" name="value"/>
-            <field type="uint64" name="time"/>
+            <field type="string" name="value">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
+            <field type="uint64" name="time">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
         </group>
         <group type="NXlog" name="double">
-            <field type="float64" name="value"/>
-            <field type="uint64" name="time"/>
+            <field type="float64" name="value">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
+            <field type="uint64" name="time">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
         </group>
         <group type="NXlog" name="float">
-            <field type="float32" name="value"/>
-            <field type="uint64" name="time"/>
+            <field type="float32" name="value">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
+            <field type="uint64" name="time">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
         </group>
         <group type="NXlog" name="long">
-            <field type="int64" name="value"/>
-            <field type="uint64" name="time"/>
+            <field type="int64" name="value">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
+            <field type="uint64" name="time">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
         </group>
         <group type="NXlog" name="int">
-            <field type="int32" name="value"/>
-            <field type="uint64" name="time"/>
+            <field type="int32" name="value">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
+            <field type="uint64" name="time">
+                <dimensions rank="1">
+                    <dim value="0" index="0"/>
+                </dimensions>
+            </field>
         </group>
         <group type="NXinstrument" name="instrument">
             <group type="NXdetector" name="detector">
