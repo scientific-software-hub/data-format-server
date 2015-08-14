@@ -101,7 +101,7 @@ public class DataFormatServer {
                             new CameraBlob(v.getValue(), append).write(nxFile);
                             setState(DeviceState.ON);
                         } catch (IOException | DevFailed e) {
-                            logger.error("StatusServerBlob write has failed!", e);
+                            logger.error("CameraBlob write has failed!", e);
                             setState(DeviceState.FAULT);
                         }
                     }
@@ -114,7 +114,7 @@ public class DataFormatServer {
                             new GenericBlob(v.getValue(), append).write(nxFile);
                             setState(DeviceState.ON);
                         } catch (IOException | DevFailed e) {
-                            logger.error("StatusServerBlob write has failed!", e);
+                            logger.error("GenericBlob write has failed!", e);
                             setState(DeviceState.FAULT);
                         }
                     }
@@ -191,11 +191,13 @@ public class DataFormatServer {
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void createFile(String fileName) throws Exception {
         nxFile = NxFile.create(cwd.resolve(fileName).toAbsolutePath().toString(), nxTemplate.toAbsolutePath().toString());
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void openFile(String fileName) throws Exception {
         if (nxFile != null) nxFile.close();
 
@@ -203,6 +205,7 @@ public class DataFormatServer {
     }
 
     @Command
+    @StateMachine(endState = DeviceState.ON)
     public void closeFile() throws Exception {
         if (nxFile == null) return;
         nxFile.close();
