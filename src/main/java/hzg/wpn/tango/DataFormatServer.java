@@ -11,8 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.tango.DeviceState;
 import org.tango.server.ServerManager;
 import org.tango.server.annotation.*;
+import org.tango.server.attribute.AttributeValue;
 import org.tango.server.device.DeviceManager;
+import org.tango.server.events.EventType;
 import org.tango.server.pipe.PipeValue;
+import org.tango.utils.DevFailedUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,7 +44,7 @@ public class DataFormatServer {
     @Attribute
     private volatile boolean append = false;
 
-    @State
+    @State(isPolled = true, pollingPeriod = 3000)
     private volatile DeviceState state;
     @Pipe
     private volatile PipeValue pipe;
@@ -68,6 +71,12 @@ public class DataFormatServer {
 
     public void setState(DeviceState newState) {
         state = newState;
+        try {
+            deviceManager.pushEvent("State", new AttributeValue(newState.getDevState()), EventType.CHANGE_EVENT);
+        } catch (DevFailed devFailed) {
+            DevFailedUtils.logDevFailed(devFailed, logger);
+            state = DeviceState.FAULT;
+        }
     }
 
     public PipeValue getPipe() {
