@@ -36,7 +36,7 @@ public class DataFormatServerTest {
         server.closeFile();
     }
 
-    @Test
+    //    @Test
     @Category(Integration.class)
     public void testWriteImage() throws Exception {
         TangoProxy mockCamera = TangoProxies.newDeviceProxyWrapper("tango://hzgctkit:10000/hzgctkit/imagedevice/0");
