@@ -213,6 +213,7 @@ public class DataFormatServer {
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void writeInteger(int v) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -221,10 +222,12 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing Integer: " + nxPath + " = " + v);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, v, append);
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void writeLong(long v) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -233,10 +236,12 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing Long: " + nxPath + " = " + v);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, v, append);
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void writeFloat(float v) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -245,10 +250,12 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing Float: " + nxPath + " = " + v);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, v, append);
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void writeDouble(double v) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -257,10 +264,12 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing Double: " + nxPath + " = " + v);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, v, append);
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void writeString(String v) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -269,10 +278,12 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing String: " + nxPath + " = " + v);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, v, append);
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void write16bitImage(short[] data) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -281,10 +292,12 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing 16 bit image to " + nxPath);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, data, append);
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void writeARGBImage(int[] data) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -293,10 +306,12 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing ARGB image to " + nxPath);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, data, append);
     }
 
     @Command
+    @StateMachine(endState = DeviceState.STANDBY)
     public void writeTIFFImage(float[] data) throws Exception {
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -305,6 +320,7 @@ public class DataFormatServer {
             throw new IllegalStateException("write method call from a client must follow write to nx_path attribute by the same client.");
 
         logger.debug("Writing float image to " + nxPath);
+        setState(DeviceState.RUNNING);
         nxFile.write(nxPath, data, append);
     }
 
