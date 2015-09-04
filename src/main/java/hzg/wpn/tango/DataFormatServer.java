@@ -36,6 +36,10 @@ public class DataFormatServer {
 
     private static final Path XENV_ROOT = Paths.get(System.getProperty("XENV_ROOT") != null ? System.getProperty("XENV_ROOT") : "");
 
+    static {
+        logger.debug("XENV_ROOT=" + XENV_ROOT);
+    }
+
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
     private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
@@ -146,6 +150,7 @@ public class DataFormatServer {
 
     public void setNxPath(String nxPath) throws Exception {
         clientId = getClientId();
+        logger.debug("Setting nx_path=" + nxPath);
         this.nxPath = nxPath;
     }
 
