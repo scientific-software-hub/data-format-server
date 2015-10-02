@@ -34,9 +34,14 @@ public class DataFormatServer {
     private static final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
     private static final ExecutorService exec = Executors.newSingleThreadExecutor();
 
-    private static final Path XENV_ROOT = Paths.get(System.getProperty("XENV_ROOT") != null ? System.getProperty("XENV_ROOT") : "");
+    private static final Path XENV_ROOT;
 
     static {
+        String xenv_root;
+
+        XENV_ROOT = Paths.get(
+                (xenv_root = System.getProperty("XENV_ROOT", System.getenv("XENV_ROOT"))) == null ? "" : xenv_root);
+
         logger.debug("XENV_ROOT=" + XENV_ROOT);
     }
 
@@ -45,10 +50,10 @@ public class DataFormatServer {
     private volatile NxFile nxFile;
     @Attribute
     private volatile String nxPath = "";
-    @Attribute
+    @Attribute(isMemorized = true)
     private volatile boolean append = false;
 
-    @State(isPolled = true, pollingPeriod = 3000)
+    @State
     private volatile DeviceState state;
     @Pipe
     private volatile PipeValue pipe;
