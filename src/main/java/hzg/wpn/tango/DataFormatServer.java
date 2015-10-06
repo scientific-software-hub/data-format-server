@@ -2,7 +2,6 @@ package hzg.wpn.tango;
 
 import com.google.common.base.Preconditions;
 import fr.esrf.Tango.DevFailed;
-import fr.esrf.TangoApi.PipeBlobBuilder;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +16,11 @@ import org.tango.server.pipe.PipeValue;
 import org.tango.utils.ClientIDUtil;
 import org.tango.utils.DevFailedUtils;
 
-import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author khokhria
@@ -46,7 +42,8 @@ public class DataFormatServer {
         logger.debug("XENV_ROOT=" + XENV_ROOT);
     }
 
-    private final ConcurrentMap<String, WriteContext> clientWriteContexts = new ConcurrentHashMap<>();
+    //clientId -> nxPath
+    private final ConcurrentMap<String, String> clientNxPath = new ConcurrentHashMap<>();
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
     private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
@@ -119,24 +116,14 @@ public class DataFormatServer {
 
     @Attribute
     public String getNxPath() throws Exception {
-        return clientWriteContexts.get(getClientId()).nxPath;
+        return clientNxPath.get(getClientId());
     }
 
     @Attribute
     public void setNxPath(String nxPath) throws Exception {
         String clientId = getClientId();
-        final WriteContext ctx = getClientContext(clientId);
 
-        if (!nxPath.equals(ctx.nxPath)) {
-            logger.debug("submit new write task");
-            exec.submit(new WriteTask(ctx.toGenericBlob()));
-
-            WriteContext newCtx = new WriteContext(nxPath);
-
-            logger.debug("Setting nx_path=" + nxPath);
-            clientWriteContexts.replace(clientId, newCtx);
-        }
-
+        clientNxPath.put(clientId, nxPath);
     }
 
     public boolean getAppend() throws Exception {
@@ -145,15 +132,6 @@ public class DataFormatServer {
 
     public void setAppend(boolean v) throws Exception {
         append = v;
-    }
-
-    private WriteContext getClientContext(String clientId) {
-        WriteContext ctx = clientWriteContexts.get(clientId);
-
-        if (ctx == null)
-            clientWriteContexts.put(clientId, new WriteContext(null));
-
-        return ctx;
     }
 
     @AroundInvoke
@@ -217,68 +195,72 @@ public class DataFormatServer {
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void writeInteger(int v) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        writeContext.addValue(v);
+        logger.debug("Writing int={} into {}", v, nxPath);
+        setState(DeviceState.RUNNING);
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void writeLong(long v) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        writeContext.addValue(v);
+        logger.debug("Writing long={} into {}", v, nxPath);
+        setState(DeviceState.RUNNING);
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void writeFloat(float v) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        writeContext.addValue(v);
+        logger.debug("Writing float={} into {}", v, nxPath);
+        setState(DeviceState.RUNNING);
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void writeDouble(double v) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        writeContext.addValue(v);
+        logger.debug("Writing double={} into {}", v, nxPath);
+        setState(DeviceState.RUNNING);
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void writeString(String v) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        writeContext.addValue(v);
+        logger.debug("Writing String='{}' into {}", v, nxPath);
+        setState(DeviceState.RUNNING);
+        nxFile.write(nxPath, v, append);
     }
 
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void write16bitImage(short[] data) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -291,8 +273,7 @@ public class DataFormatServer {
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void writeARGBImage(int[] data) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -305,8 +286,7 @@ public class DataFormatServer {
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void writeTIFFImage(float[] data) throws Exception {
-        WriteContext writeContext = getClientContext(getClientId());
-        String nxPath = writeContext.nxPath;
+        String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
@@ -332,66 +312,6 @@ public class DataFormatServer {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw e;
-        }
-    }
-
-    @Immutable
-    public class WriteContext {
-        final String nxPath;
-        final AtomicReference<Object> valuesRef = new AtomicReference<>();
-
-        private WriteContext(String nxPath) {
-            this.nxPath = nxPath;
-        }
-
-        private int ensureCapacity(Class<?> type) {
-            Object values = valuesRef.get();
-            if (values == null) {
-                valuesRef.set(Array.newInstance(type, 1));
-                return 0;
-            } else {
-                int length = Array.getLength(values);
-                valuesRef.set(Array.newInstance(type, length + 1));
-                return length;
-            }
-        }
-
-        void addValue(int v) {
-            int ndx = ensureCapacity(int.class);
-            Array.setInt(valuesRef.get(), ndx, v);
-        }
-
-        void addValue(long v) {
-            int ndx = ensureCapacity(long.class);
-            Array.setLong(valuesRef.get(), ndx, v);
-        }
-
-        void addValue(float v) {
-            int ndx = ensureCapacity(float.class);
-            Array.setFloat(valuesRef.get(), ndx, v);
-        }
-
-        void addValue(double v) {
-            int ndx = ensureCapacity(float.class);
-            Array.setDouble(valuesRef.get(), ndx, v);
-        }
-
-        void addValue(String v) {
-            int ndx = ensureCapacity(float.class);
-            Array.set(valuesRef.get(), ndx, v);
-        }
-
-
-        GenericBlob toGenericBlob() throws Exception {
-            PipeBlobBuilder pipeBlobBuilder = new PipeBlobBuilder(getClientId());
-
-            PipeBlobBuilder inner = new PipeBlobBuilder(nxPath);
-
-            inner.add(nxPath, valuesRef.get());
-
-            pipeBlobBuilder.add(nxPath, inner.build());
-
-            return new GenericBlob(pipeBlobBuilder.build(), DataFormatServer.this.append);
         }
     }
 
