@@ -22,11 +22,12 @@ import java.util.List;
 public class GenericBlob implements NexusWriter {
     private static final Logger logger = LoggerFactory.getLogger(GenericBlob.class);
 
-    public List<Element> elements = new ArrayList<>();
-    private boolean append = true;
+    public final List<Element> elements = new ArrayList<>();
+    private final boolean append;
 
 
-    public GenericBlob() {
+    public GenericBlob(boolean append) {
+        this.append = append;
     }
 
     public GenericBlob(PipeBlob blob, boolean append) throws DevFailed {

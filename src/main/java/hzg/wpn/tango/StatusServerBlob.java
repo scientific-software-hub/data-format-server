@@ -13,8 +13,8 @@ import java.io.IOException;
  * @since 11.07.2015
  */
 public class StatusServerBlob implements NexusWriter {
-    public GenericBlob values = new GenericBlob();
-    public GenericBlob times = new GenericBlob();
+    public GenericBlob values = new GenericBlob(true);
+    public GenericBlob times = new GenericBlob(true);
 
     public StatusServerBlob(PipeBlob blob) throws DevFailed {
         PipeScanner scanner = new DevicePipe(null, blob);
