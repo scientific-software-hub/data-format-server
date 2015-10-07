@@ -9,8 +9,10 @@ import org.tango.client.ez.proxy.TangoProxies;
 import org.tango.client.ez.proxy.TangoProxy;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -21,12 +23,16 @@ import static org.mockito.Mockito.spy;
 public class DataFormatServerTest {
 
     private DataFormatServer server = spy(new DataFormatServer());
+    private Path cwd;
 
     @Before
     public void before() throws Exception {
         doReturn(Thread.currentThread().getName()).when(server).getClientId();
 
-        Files.createDirectories(Paths.get(server.getCwd()));
+        cwd = Paths.get("target/var").toAbsolutePath();
+        Files.createDirectories(cwd);
+        server.setCwd(cwd.toString());
+
         Files.deleteIfExists(Paths.get(server.getCwd(), "test.h5"));
         server.createFile("test.h5");
     }
@@ -51,6 +57,8 @@ public class DataFormatServerTest {
     @Category(Integration.class)
     public void writeDoubleNan() throws Exception {
         TangoProxy dfs = TangoProxies.newDeviceProxyWrapper("tango://hzgcttest:10000/development/dfs/0");
+
+        assertEquals(cwd.toString(), dfs.readAttribute("cwd"));
 
         dfs.executeCommand("openFile", "test.h5");
 
