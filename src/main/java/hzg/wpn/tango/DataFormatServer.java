@@ -53,8 +53,10 @@ public class DataFormatServer {
     private volatile PipeValue pipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
-    @Attribute(isMemorized = true)
+    @Attribute
     private volatile boolean append;
+    private ThreadLocal<String> clientId = new ThreadLocal<>();
+
     {
         try {
             Files.createDirectories(cwd);
@@ -63,8 +65,6 @@ public class DataFormatServer {
             throw new RuntimeException(e);
         }
     }
-
-    private ThreadLocal<String> clientId = new ThreadLocal<>();
 
     public static void main(String[] args) {
         ServerManager.getInstance().start(args, DataFormatServer.class);
