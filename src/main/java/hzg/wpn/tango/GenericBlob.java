@@ -46,7 +46,7 @@ public class GenericBlob implements NexusWriter {
             for (Element e : elements) {
                 Class<?> aClass = e.value.getClass().getComponentType();
                 for (int i = 0, size = Array.getLength(e.value); i < size; ++i) {
-                    logger.debug("Writing data to nexus file: " + e.nxPath + "=" + Array.get(e.value, i));
+                    logger.debug("{} data to nexus file: {}={}", append ? "Appending" : "Writing", e.nxPath, String.valueOf(Array.get(e.value, i)));
                     if (aClass == Integer.class || aClass == Short.class ||
                             aClass == Byte.class || aClass == int.class || aClass == short.class ||
                             aClass == byte.class) {
