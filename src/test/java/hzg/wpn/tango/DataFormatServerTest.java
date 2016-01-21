@@ -58,6 +58,10 @@ public class DataFormatServerTest {
     public void writeDoubleNan() throws Exception {
         TangoProxy dfs = TangoProxies.newDeviceProxyWrapper("development/dfs/0");
 
+        if(!dfs.readAttribute("cwd").equals(cwd.toString())){
+            dfs.writeAttribute("cwd", cwd.toString());
+        }
+
         assertEquals(cwd.toString(), dfs.readAttribute("cwd"));
 
         dfs.executeCommand("openFile", "test.h5");
