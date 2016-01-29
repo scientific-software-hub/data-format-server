@@ -4,6 +4,7 @@ import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DevicePipe;
 import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeScanner;
+import hzg.wpn.nexus.libpniio.jni.LibpniioException;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class GenericBlob implements NexusWriter {
     }
 
     @Override
-    public void write(NxFile file) throws IOException {
+    public void write(NxFile file) {
         for (Element element : elements) {
             Class<?> aClass = element.value.getClass().getComponentType();
             for (int i = 0, size = Array.getLength(element.value); i < size; ++i) {
@@ -60,8 +61,8 @@ public class GenericBlob implements NexusWriter {
                     } else {
                         file.write(element.nxPath, String.valueOf(Array.get(element.value, i)), append);
                     }
-                } catch (Exception e) {
-                    logger.warn("Write to NeXus file has failed!", e);
+                } catch (LibpniioException e) {
+                    logger.warn("Write to NeXus file has failed: {}", e.getMessage());
                     continue;
                 }
             }

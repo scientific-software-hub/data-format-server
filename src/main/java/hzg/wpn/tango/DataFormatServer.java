@@ -327,6 +327,7 @@ public class DataFormatServer {
             DataFormatServer.this.setState(DeviceState.RUNNING);
             try {
                 writer.write(nxFile);
+                DataFormatServer.this.setState(DeviceState.STANDBY);
             } catch (IOException e) {
                 DataFormatServer.logger.error(e.getMessage(), e);
                 DataFormatServer.this.setState(DeviceState.FAULT);
