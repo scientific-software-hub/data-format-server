@@ -154,7 +154,7 @@ public class DataFormatServer {
     @Attribute(isMemorized = true)
     public void setCwd(String cwd) {
         Path tmp = XENV_ROOT.resolve(cwd);
-        if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory name is expected here!");
+        if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory is expected here: " + tmp.toString());
         this.cwd = tmp;
     }
 
