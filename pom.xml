@@ -10,7 +10,7 @@
 
     <groupId>hzg.wpn.xenv</groupId>
     <artifactId>DataFormatServer</artifactId>
-    <version>3.2-SNAPSHOT</version>
+    <version>3.2</version>
     <packaging>jar</packaging>
 
     <properties>
