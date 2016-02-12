@@ -158,6 +158,13 @@ public class DataFormatServer {
         this.cwd = tmp;
     }
 
+
+    @Attribute
+    @StateMachine(deniedStates = DeviceState.ON)
+    public String getOpenedFile(){
+        return nxFile.getFileName();
+    }
+
     @Attribute(isMemorized = true)
     public String getNxTemplate() {
         return nxTemplate.toAbsolutePath().toString();
