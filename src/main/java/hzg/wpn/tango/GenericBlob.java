@@ -3,6 +3,7 @@ package hzg.wpn.tango;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DevicePipe;
 import fr.esrf.TangoApi.PipeBlob;
+import fr.esrf.TangoApi.PipeDataElement;
 import fr.esrf.TangoApi.PipeScanner;
 import hzg.wpn.nexus.libpniio.jni.LibpniioException;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
@@ -12,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Contains an array of values associated with an nxPath
@@ -21,7 +24,7 @@ import java.util.List;
  * @since 11.07.2015
  */
 public class GenericBlob implements NexusWriter {
-    private static final Logger logger = LoggerFactory.getLogger(GenericBlob.class);
+    private final Logger logger = LoggerFactory.getLogger(GenericBlob.class);
 
     public final List<Element> elements = new ArrayList<>();
     private final boolean append;
@@ -33,10 +36,11 @@ public class GenericBlob implements NexusWriter {
 
     public GenericBlob(PipeBlob blob, boolean append) throws DevFailed {
         this.append = append;
-        PipeScanner scanner = new DevicePipe(null, blob);
-        while (scanner.hasNext()) {
-            PipeScanner innerScanner = scanner.nextScanner();
-            Element element = new Element(innerScanner.nextString(), innerScanner.nextArray());
+        for (PipeDataElement dataElement : blob) {
+            PipeBlob innerBlob = dataElement.extractPipeBlob();
+            PipeScanner scanner = new DevicePipe(null, innerBlob);
+            Element element = new Element(
+                    NexusWriterHelper.toNxPath(innerBlob.getName()), scanner.nextArray());
             elements.add(element);
         }
     }

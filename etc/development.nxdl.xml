@@ -1,6 +1,10 @@
 <?xml version='1.0'?>
 <definition>
     <group type="NXentry" name="entry">
+        <group type="NXobject" name="predator">
+            <field type="string" name="string"/>
+            <field type="float64" name="double"/>
+        </group>
         <group type="NXlog" name="string">
             <field type="string" name="value">
                 <dimensions rank="1">

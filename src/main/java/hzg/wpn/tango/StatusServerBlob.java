@@ -3,10 +3,12 @@ package hzg.wpn.tango;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DevicePipe;
 import fr.esrf.TangoApi.PipeBlob;
+import fr.esrf.TangoApi.PipeDataElement;
 import fr.esrf.TangoApi.PipeScanner;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * @author Igor Khokhriakov <igor.khokhriakov@hzg.de>
@@ -17,10 +19,10 @@ public class StatusServerBlob implements NexusWriter {
     public GenericBlob times = new GenericBlob(true);
 
     public StatusServerBlob(PipeBlob blob) throws DevFailed {
-        PipeScanner scanner = new DevicePipe(null, blob);
-        while (scanner.hasNext()) {
-            PipeScanner innerBlobScanner = scanner.nextScanner();
-            String nxPath = innerBlobScanner.nextString();
+        for (PipeDataElement dataElement : blob) {
+            PipeBlob innerBlob = dataElement.extractPipeBlob();
+            String nxPath = NexusWriterHelper.toNxPath(innerBlob.getName());
+            PipeScanner innerBlobScanner = new DevicePipe(null, innerBlob);
             GenericBlob.Element elementValue = new GenericBlob.Element(nxPath + "/value", innerBlobScanner.nextArray());
             GenericBlob.Element elementTime = new GenericBlob.Element(nxPath + "/time", innerBlobScanner.nextArray(long[].class));
 
