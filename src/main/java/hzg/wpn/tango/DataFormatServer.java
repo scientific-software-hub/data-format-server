@@ -28,8 +28,8 @@ import java.util.concurrent.*;
  */
 @Device(transactionType = TransactionType.NONE)
 public class DataFormatServer {
-    private static final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
-    private static final ExecutorService exec = Executors.newSingleThreadExecutor();
+    private final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
+    private final ExecutorService exec = Executors.newSingleThreadExecutor();
 
     private static final Path XENV_ROOT;
 
@@ -39,6 +39,9 @@ public class DataFormatServer {
         XENV_ROOT = Paths.get(
                 (xenv_root = System.getProperty("XENV_ROOT", System.getenv("XENV_ROOT"))) == null ? "" : xenv_root);
 
+
+    }
+    {
         logger.debug("XENV_ROOT=" + XENV_ROOT);
     }
 
@@ -107,7 +110,7 @@ public class DataFormatServer {
                 throw new IllegalArgumentException("Unknown blob type: " + v.getValue().getName());
         }
 
-        exec.submit(runnable);
+        exec.execute(runnable);
     }
 
     public void setDeviceManager(DeviceManager manager) {
@@ -336,7 +339,7 @@ public class DataFormatServer {
                 writer.write(nxFile);
                 DataFormatServer.this.setState(DeviceState.STANDBY);
             } catch (IOException e) {
-                DataFormatServer.logger.error(e.getMessage(), e);
+                DataFormatServer.this.logger.error(e.getMessage(), e);
                 DataFormatServer.this.setState(DeviceState.FAULT);
             }
         }

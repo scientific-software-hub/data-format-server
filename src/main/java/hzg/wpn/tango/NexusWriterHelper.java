@@ -15,7 +15,7 @@ public class NexusWriterHelper {
 
     private static final Map<String,String> MAPPING = new HashMap<>();
 
-    {
+    static {
          try{
              Map<String,String> mapping = (Map<String, String>) (Map) ResourceManager.loadProperties("etc/DataFormatServer", "nxpath.mapping");
              MAPPING.putAll(mapping);
@@ -23,6 +23,16 @@ public class NexusWriterHelper {
              throw new RuntimeException("Failed to load mapping file.", e);
          }
 
+    }
+
+    /**
+     *
+     *
+     * @param key
+     * @return true if mapping is defined for the kay
+     */
+    public static boolean hasMapping(String key){
+        return MAPPING.containsKey(key);
     }
 
     /**
