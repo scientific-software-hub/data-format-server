@@ -56,7 +56,7 @@ public class DataFormatServerTest {
     @Test
     @Category(Integration.class)
     public void writeDoubleNan() throws Exception {
-        TangoProxy dfs = TangoProxies.newDeviceProxyWrapper("development/dfs/0");
+        TangoProxy dfs = TangoProxies.newDeviceProxyWrapper("tango://hzgxenvtest:10000/development/dfs/0");
 
         if(!dfs.readAttribute("cwd").equals(cwd.toString())){
             dfs.writeAttribute("cwd", cwd.toString());

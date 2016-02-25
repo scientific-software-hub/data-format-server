@@ -39,13 +39,14 @@ public class GenericBlob implements NexusWriter {
         for (PipeDataElement dataElement : blob) {
             PipeBlob innerBlob = dataElement.extractPipeBlob();
             PipeScanner scanner = new DevicePipe(null, innerBlob);
-            String key = innerBlob.getName();
-            if(NexusWriterHelper.hasMapping(key)) {
-                logger.warn("DataBlob[{}] has no mapping defined in nxpath.mapping", key);
-                Element element = new Element(
-                        NexusWriterHelper.toNxPath(key), scanner.nextArray());
-                elements.add(element);
+            String nxPath = innerBlob.getName();
+            if(NexusWriterHelper.hasMapping(nxPath)) {
+                nxPath = NexusWriterHelper.toNxPath(nxPath);
             }
+
+            Element element = new Element(
+                    nxPath, scanner.nextArray());
+            elements.add(element);
         }
     }
 
