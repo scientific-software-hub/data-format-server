@@ -101,10 +101,10 @@ public class DataFormatServer {
                 runnable = new WriteTask(new StatusServerBlob(v.getValue()));
                 break;
             case "camera":
-                runnable = new WriteTask(new CameraBlob(v.getValue(), append));
+                runnable = new WriteTask(new CameraBlob(v.getValue()));
                 break;
             case "any":
-                runnable = new WriteTask(new GenericBlob(v.getValue(), append));
+                runnable = new WriteTask(new GenericBlob(v.getValue()));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown blob type: " + v.getValue().getName());

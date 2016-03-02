@@ -34,9 +34,11 @@ public class GenericBlob implements NexusWriter {
         this.append = append;
     }
 
-    public GenericBlob(PipeBlob blob, boolean append) throws DevFailed {
-        this.append = append;
-        for (PipeDataElement dataElement : blob) {
+    public GenericBlob(PipeBlob blob) throws DevFailed {
+        this.append = blob.get(0).extractBooleanArray()[0];
+
+
+        for (PipeDataElement dataElement : blob.get(1).extractPipeBlob()) {
             PipeBlob innerBlob = dataElement.extractPipeBlob();
             PipeScanner scanner = new DevicePipe(null, innerBlob);
             String nxPath = innerBlob.getName();
