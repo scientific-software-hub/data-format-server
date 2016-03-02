@@ -52,8 +52,12 @@ public class DataFormatServer {
     private volatile NxFile nxFile;
     @State
     private volatile DeviceState state;
+    @Status
+    private volatile String status;
     @Pipe
     private volatile PipeValue pipe;
+    @Pipe(name = "status")
+    private volatile PipeValue statusPipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
     @Attribute
@@ -79,12 +83,14 @@ public class DataFormatServer {
 
     public void setState(DeviceState newState) {
         state = newState;
-        try {
-            deviceManager.pushEvent("State", new AttributeValue(newState.getDevState()), EventType.CHANGE_EVENT);
-        } catch (DevFailed devFailed) {
-            DevFailedUtils.logDevFailed(devFailed, logger);
-            state = DeviceState.FAULT;
-        }
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public PipeValue getPipe() {
@@ -111,6 +117,10 @@ public class DataFormatServer {
         }
 
         exec.execute(runnable);
+    }
+
+    public PipeValue getStatusPipe(){
+        return statusPipe;
     }
 
     public void setDeviceManager(DeviceManager manager) {
@@ -342,6 +352,36 @@ public class DataFormatServer {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
                 DataFormatServer.this.setState(DeviceState.FAULT);
             }
+        }
+    }
+
+    public class StatusPipe {
+        public void push() {
+            update();
+            try {
+                deviceManager.pushPipeEvent("status",toPipeValue());
+            } catch (DevFailed devFailed) {
+                if(getState() == DeviceState.FAULT){
+                    DevFailedUtils.logDevFailed(devFailed, logger);
+                    return; //give up
+                }
+
+                DevFailedUtils.logDevFailed(devFailed, logger);
+                setState(DeviceState.FAULT);
+                setStatus(DevFailedUtils.toString(devFailed));
+
+
+                push();
+            }
+        }
+
+        public void update(){
+
+        }
+
+
+        public PipeValue toPipeValue(){
+            return null;
         }
     }
 }
