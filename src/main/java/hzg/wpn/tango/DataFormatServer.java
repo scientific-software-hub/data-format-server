@@ -10,9 +10,7 @@ import org.tango.DeviceState;
 import org.tango.server.InvocationContext;
 import org.tango.server.ServerManager;
 import org.tango.server.annotation.*;
-import org.tango.server.attribute.AttributeValue;
 import org.tango.server.device.DeviceManager;
-import org.tango.server.events.EventType;
 import org.tango.server.pipe.PipeValue;
 import org.tango.utils.ClientIDUtil;
 import org.tango.utils.DevFailedUtils;
@@ -29,9 +27,6 @@ import java.util.concurrent.*;
  */
 @Device(transactionType = TransactionType.NONE)
 public class DataFormatServer {
-    private final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
-    private final ExecutorService exec = Executors.newSingleThreadExecutor();
-
     private static final Path XENV_ROOT;
 
     static {
@@ -42,10 +37,9 @@ public class DataFormatServer {
 
 
     }
-    {
-        logger.debug("XENV_ROOT=" + XENV_ROOT);
-    }
 
+    private final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
+    private final ExecutorService exec = Executors.newSingleThreadExecutor();
     //clientId -> nxPath
     private final ConcurrentMap<String, String> clientNxPath = new ConcurrentHashMap<>();
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
@@ -64,6 +58,10 @@ public class DataFormatServer {
     @Attribute
     private volatile boolean append;
     private ThreadLocal<String> clientId = new ThreadLocal<>();
+
+    {
+        logger.debug("XENV_ROOT=" + XENV_ROOT);
+    }
 
     {
         try {
@@ -232,7 +230,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, v, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
@@ -256,7 +254,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, v, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
@@ -281,7 +279,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, v, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
@@ -305,7 +303,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, v, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
@@ -329,7 +327,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, v, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
@@ -353,7 +351,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, data, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
@@ -377,7 +375,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, data, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
@@ -401,7 +399,7 @@ public class DataFormatServer {
                     nxFile.write(nxPath, data, append);
                     DataFormatServer.this.setState(DeviceState.STANDBY);
                 } catch (LibpniioException e) {
-                    DataFormatServer.logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                     DataFormatServer.this.setState(DeviceState.FAULT);
                 }
             }
