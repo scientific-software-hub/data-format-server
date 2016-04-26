@@ -17,9 +17,9 @@ public class StatusServerBlobTest {
     @Test
     public void testWrite() throws Exception {
         PipeBlob testBlob = new PipeBlobBuilder("status_server")
-                .add("int-blob", new PipeBlobBuilder("int-blob").add("nxPath", "/entry/int").add("values", new int[]{1, 2, 3}, false).add("times", new long[]{100L, 101L, 100L}).build())
-                .add("long-blob", new PipeBlobBuilder("long-blob").add("nxPath", "/entry/long").add("values", new long[]{1001L, 1002L, 1003L}).add("times", new long[]{100L, 101L, 100L}).build())
-                .add("float-blob", new PipeBlobBuilder("float-blob").add("nxPath", "/entry/float").add("values", new float[]{3.14F, 2.78F}).add("times", new long[]{100L, 101L}).build())
+                .add("int-blob", new PipeBlobBuilder("/entry/int").add("value", new int[]{1, 2, 3}, false).add("time", new long[]{100L, 101L, 100L}).build())
+                .add("long-blob", new PipeBlobBuilder("/entry/long").add("value", new long[]{1001L, 1002L, 1003L}).add("time", new long[]{100L, 101L, 100L}).build())
+                .add("float-blob", new PipeBlobBuilder("/entry/float").add("value", new float[]{3.14F, 2.78F}).add("time", new long[]{100L, 101L}).build())
                 .build();
 
 

@@ -29,8 +29,8 @@ import java.util.concurrent.*;
  */
 @Device(transactionType = TransactionType.NONE)
 public class DataFormatServer {
-    private static final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
-    private static final ExecutorService exec = Executors.newSingleThreadExecutor();
+    private final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
+    private final ExecutorService exec = Executors.newSingleThreadExecutor();
 
     private static final Path XENV_ROOT;
 
@@ -40,6 +40,9 @@ public class DataFormatServer {
         XENV_ROOT = Paths.get(
                 (xenv_root = System.getProperty("XENV_ROOT", System.getenv("XENV_ROOT"))) == null ? "" : xenv_root);
 
+
+    }
+    {
         logger.debug("XENV_ROOT=" + XENV_ROOT);
     }
 
@@ -50,8 +53,12 @@ public class DataFormatServer {
     private volatile NxFile nxFile;
     @State
     private volatile DeviceState state;
+    @Status
+    private volatile String status;
     @Pipe
     private volatile PipeValue pipe;
+    @Pipe(name = "status")
+    private volatile PipeValue statusPipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
     @Attribute
@@ -81,12 +88,14 @@ public class DataFormatServer {
 
     public void setState(DeviceState newState) {
         state = newState;
-        try {
-            deviceManager.pushEvent("State", new AttributeValue(newState.getDevState()), EventType.CHANGE_EVENT);
-        } catch (DevFailed devFailed) {
-            DevFailedUtils.logDevFailed(devFailed, logger);
-            state = DeviceState.FAULT;
-        }
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public PipeValue getPipe() {
@@ -103,16 +112,20 @@ public class DataFormatServer {
                 runnable = new WriteTask(new StatusServerBlob(v.getValue()));
                 break;
             case "camera":
-                runnable = new WriteTask(new CameraBlob(v.getValue(), append));
+                runnable = new WriteTask(new CameraBlob(v.getValue()));
                 break;
             case "any":
-                runnable = new WriteTask(new GenericBlob(v.getValue(), append));
+                runnable = new WriteTask(new GenericBlob(v.getValue()));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown blob type: " + v.getValue().getName());
         }
 
-        exec.submit(runnable);
+        exec.execute(runnable);
+    }
+
+    public PipeValue getStatusPipe(){
+        return statusPipe;
     }
 
     public void setDeviceManager(DeviceManager manager) {
@@ -161,6 +174,13 @@ public class DataFormatServer {
         Path tmp = XENV_ROOT.resolve(cwd);
         if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory is expected here: " + tmp.toString());
         this.cwd = tmp;
+    }
+
+
+    @Attribute
+    @StateMachine(deniedStates = DeviceState.ON)
+    public String getOpenedFile(){
+        return nxFile.getFileName();
     }
 
     @Attribute(isMemorized = true)
@@ -423,9 +443,39 @@ public class DataFormatServer {
                 writer.write(nxFile);
                 DataFormatServer.this.setState(DeviceState.STANDBY);
             } catch (IOException e) {
-                DataFormatServer.logger.error(e.getMessage(), e);
+                DataFormatServer.this.logger.error(e.getMessage(), e);
                 DataFormatServer.this.setState(DeviceState.FAULT);
             }
+        }
+    }
+
+    public class StatusPipe {
+        public void push() {
+            update();
+            try {
+                deviceManager.pushPipeEvent("status",toPipeValue());
+            } catch (DevFailed devFailed) {
+                if(getState() == DeviceState.FAULT){
+                    DevFailedUtils.logDevFailed(devFailed, logger);
+                    return; //give up
+                }
+
+                DevFailedUtils.logDevFailed(devFailed, logger);
+                setState(DeviceState.FAULT);
+                setStatus(DevFailedUtils.toString(devFailed));
+
+
+                push();
+            }
+        }
+
+        public void update(){
+
+        }
+
+
+        public PipeValue toPipeValue(){
+            return null;
         }
     }
 }

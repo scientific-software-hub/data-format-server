@@ -26,12 +26,13 @@ public class CameraBlob implements NexusWriter {
     public Object image;
 
 
-    public CameraBlob(PipeBlob blob, boolean append) throws DevFailed {
-        PipeScanner scanner = new DevicePipe(null, blob);
+    public CameraBlob(PipeBlob blob) throws DevFailed {
+        this.append = blob.get(0).extractBooleanArray()[0];
+
+        PipeScanner scanner = new DevicePipe(null, blob.get(1).extractPipeBlob());
         nxPath = scanner.nextString();
         type = ImageType.valueOf(scanner.nextString());
         image = scanner.nextArray();
-        this.append = append;
     }
 
     @Override
