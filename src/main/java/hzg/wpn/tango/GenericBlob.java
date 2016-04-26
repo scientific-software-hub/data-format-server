@@ -9,7 +9,6 @@ import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class GenericBlob implements NexusWriter {
             Class<?> aClass = element.value.getClass().getComponentType();
             for (int i = 0, size = Array.getLength(element.value); i < size; ++i) {
                 try {
-                    logger.debug("{} data to nexus file: {}={}", append ? "Appending" : "Writing", element.nxPath, String.valueOf(Array.get(element.value, i)));
+                    DataFormatServer.log(logger, append, element.nxPath, String.valueOf(Array.get(element.value, i)));
                     if (aClass == Integer.class || aClass == Short.class ||
                             aClass == Byte.class || aClass == int.class || aClass == short.class ||
                             aClass == byte.class) {
