@@ -2,6 +2,7 @@ package hzg.wpn.tango;
 
 import com.google.common.base.Preconditions;
 import fr.esrf.Tango.DevFailed;
+import fr.esrf.TangoApi.PipeBlobBuilder;
 import hzg.wpn.nexus.libpniio.jni.LibpniioException;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.slf4j.Logger;
@@ -55,6 +56,8 @@ public class DataFormatServer {
     private volatile PipeValue statusPipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
+    @DeviceProperty(defaultValue = "false")
+    private boolean stateCheckAttrAlarm = false;
     @Attribute
     private volatile boolean append;
     private ThreadLocal<String> clientId = new ThreadLocal<>();
@@ -78,6 +81,10 @@ public class DataFormatServer {
 
     static void log(Logger logger, boolean append, String nxPath, String value) {
         logger.debug("{} data to nexus file: {}={}", append ? "Appending" : "Writing", nxPath, value);
+    }
+
+    public void setStateCheckAttrAlarm(boolean v) {
+        stateCheckAttrAlarm = v;
     }
 
     public DeviceState getState() {
@@ -153,7 +160,7 @@ public class DataFormatServer {
     @AroundInvoke
     public void aroundInvoke(InvocationContext ctx) {
         String clientId = ClientIDUtil.toString(ctx.getClientID());
-        logger.debug("clientId={}", clientId);
+        logger.debug(ctx.toString());
         this.clientId.set(clientId);
     }
 
@@ -172,12 +179,14 @@ public class DataFormatServer {
         Path tmp = XENV_ROOT.resolve(cwd);
         if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory is expected here: " + tmp.toString());
         this.cwd = tmp;
+
+        pushEvent("cwd", tmp.toAbsolutePath().toString());
     }
 
 
     @Attribute
     @StateMachine(deniedStates = DeviceState.ON)
-    public String getOpenedFile(){
+    public String getNxFile() {
         return nxFile.getFileName();
     }
 
@@ -189,14 +198,19 @@ public class DataFormatServer {
     @Attribute(isMemorized = true)
     public void setNxTemplate(String nxTemplateName) {
         Path tmp = XENV_ROOT.resolve(nxTemplateName);
-        if (!Files.exists(tmp)) throw new IllegalArgumentException("An existing .nxdl.xml file is expected here!");
+        if (!Files.exists(tmp)) throw new IllegalArgumentException(nxTemplateName + " does not exist.");
         nxTemplate = tmp;
+
+        pushEvent("nxTemplate", nxTemplate.toAbsolutePath().toString());
     }
 
     @Command
     @StateMachine(endState = DeviceState.STANDBY)
     public void createFile(String fileName) throws Exception {
-        nxFile = NxFile.create(cwd.resolve(fileName).toAbsolutePath().toString(), nxTemplate.toAbsolutePath().toString());
+        String name = cwd.resolve(fileName).toAbsolutePath().toString();
+        String nxTemplate = this.nxTemplate.toAbsolutePath().toString();
+        nxFile = NxFile.create(name, nxTemplate);
+        logger.info("Created file {} using template {}", name, nxTemplate);
     }
 
     @Command
@@ -204,7 +218,9 @@ public class DataFormatServer {
     public void openFile(String fileName) throws Exception {
         if (nxFile != null) nxFile.close();
 
-        nxFile = NxFile.open(cwd.resolve(fileName).toAbsolutePath().toString());
+        String name = cwd.resolve(fileName).toAbsolutePath().toString();
+        nxFile = NxFile.open(name);
+        logger.info("Opened file {}", name);
     }
 
     @Command
@@ -213,6 +229,7 @@ public class DataFormatServer {
         if (nxFile == null) return;
         nxFile.close();
         nxFile = null;
+        logger.info("Closed file {}", nxFile.getFileName());
     }
 
     @Command
@@ -424,6 +441,19 @@ public class DataFormatServer {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw e;
+        }
+    }
+
+    private void pushEvent(String name, String value) {
+        logger.debug("Sending event: {}={}", name, value);
+
+        PipeBlobBuilder pbb = new PipeBlobBuilder(name);
+        pbb.add(name, value);
+
+        try {
+            deviceManager.pushPipeEvent("status", new PipeValue(pbb.build()));
+        } catch (DevFailed devFailed) {
+            DevFailedUtils.logDevFailed(devFailed, logger);
         }
     }
 
