@@ -22,7 +22,7 @@
     <distributionManagement>
         <repository>
             <id>bintray-hzg</id>
-            <url>https://api.bintray.com/maven/hzgde/hzg-wpn-projects/${distribution.project.name};publish=1</url>
+            <url>https://api.bintray.com/maven/hzgde/hzg-wpn-projects/${distribution.project.name}/;publish=1</url>
         </repository>
     </distributionManagement>
 
