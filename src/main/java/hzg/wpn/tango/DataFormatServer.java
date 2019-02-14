@@ -228,8 +228,8 @@ public class DataFormatServer {
     public void closeFile() throws Exception {
         if (nxFile == null) return;
         nxFile.close();
-        nxFile = null;
         logger.info("Closed file {}", nxFile.getFileName());
+        nxFile = null;
     }
 
     @Command
