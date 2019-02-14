@@ -4,7 +4,7 @@
 
     <groupId>hzg.wpn.xenv</groupId>
     <artifactId>DataFormatServer</artifactId>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.1</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -16,7 +16,7 @@
         <connection>scm:hg:https://bitbucket.org/hzgwpn/${scm.project.name}</connection>
         <developerConnection>scm:hg:ssh://hg@bitbucket.org/hzgwpn/${scm.project.name}</developerConnection>
         <url>ssh://hg@bitbucket.org/hzgwpn/${scm.project.name}</url>
-      <tag>HEAD</tag>
+      <tag>DataFormatServer-4.1</tag>
   </scm>
 
     <distributionManagement>
