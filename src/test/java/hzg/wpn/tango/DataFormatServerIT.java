@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  * @author khokhria
  * @since 6/17/15.
  */
-public class DataFormatServerTest {
+public class DataFormatServerIT {
 
     private Path cwd;
 
