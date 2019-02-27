@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.tango.DeviceState;
 import org.tango.server.InvocationContext;
 import org.tango.server.ServerManager;
+import org.tango.server.ServerManagerUtils;
 import org.tango.server.annotation.*;
 import org.tango.server.device.DeviceManager;
 import org.tango.server.pipe.PipeValue;
@@ -75,8 +76,9 @@ public class DataFormatServer {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         ServerManager.getInstance().start(args, DataFormatServer.class);
+        ServerManagerUtils.writePidFile(null);
     }
 
     static void log(Logger logger, boolean append, String nxPath, String value) {
