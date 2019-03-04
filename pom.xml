@@ -124,7 +124,6 @@
         <dependency>
             <groupId>org.tango</groupId>
             <artifactId>ezTangORB</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>hzg.wpn</groupId>
