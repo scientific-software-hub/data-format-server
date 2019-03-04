@@ -122,6 +122,11 @@
             <version>3.0.0</version>
         </dependency>
         <dependency>
+            <groupId>org.tango</groupId>
+            <artifactId>ezTangORB</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>hzg.wpn</groupId>
             <artifactId>utils</artifactId>
         </dependency>
