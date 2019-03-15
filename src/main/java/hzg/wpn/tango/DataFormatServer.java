@@ -7,6 +7,7 @@ import hzg.wpn.nexus.libpniio.jni.LibpniioException;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.tango.DeviceState;
 import org.tango.server.InvocationContext;
 import org.tango.server.ServerManager;
@@ -205,6 +206,7 @@ public class DataFormatServer {
         final String name = cwd.resolve(fileName).toAbsolutePath().toString();
         final String nxTemplate = this.nxTemplate.toAbsolutePath().toString();
         exec.submit(() -> {
+            MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
             try {
                 nxFile = NxFile.create(name, nxTemplate);
                 setState(DeviceState.ON);
@@ -221,6 +223,7 @@ public class DataFormatServer {
         String name = cwd.resolve(fileName).toAbsolutePath().toString();
 
         exec.submit(() -> {
+            MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
             try {
                 if (nxFile != null) nxFile.close();
                 nxFile = NxFile.open(name);
@@ -239,6 +242,7 @@ public class DataFormatServer {
     @Command
     public void closeFile() {
         exec.submit(() -> {
+            MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
             try {
                 if (nxFile == null) return;
                 nxFile.close();
@@ -348,6 +352,7 @@ public class DataFormatServer {
 
         @Override
         public void run() {
+            MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
             DataFormatServer.this.setState(DeviceState.RUNNING);
             try {
                 writer.write(nxFile);
