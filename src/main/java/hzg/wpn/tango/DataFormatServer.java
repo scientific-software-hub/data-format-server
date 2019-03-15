@@ -57,8 +57,6 @@ public class DataFormatServer {
     private volatile PipeValue statusPipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
-    @DeviceProperty(defaultValue = "false")
-    private boolean stateCheckAttrAlarm = false;
     @Attribute
     private volatile boolean append;
     private ThreadLocal<String> clientId = new ThreadLocal<>();
@@ -83,10 +81,6 @@ public class DataFormatServer {
 
     static void log(Logger logger, boolean append, String nxPath, String value) {
         logger.debug("{} data to nexus file: {}={}", append ? "Appending" : "Writing", nxPath, value);
-    }
-
-    public void setStateCheckAttrAlarm(boolean v) {
-        stateCheckAttrAlarm = v;
     }
 
     public DeviceState getState() {
@@ -207,229 +201,115 @@ public class DataFormatServer {
     }
 
     @Command
-    @StateMachine(endState = DeviceState.STANDBY)
-    public void createFile(String fileName) throws Exception {
+    public void createFile(String fileName) {
+        final String name = cwd.resolve(fileName).toAbsolutePath().toString();
+        final String nxTemplate = this.nxTemplate.toAbsolutePath().toString();
+        exec.submit(() -> {
+            try {
+                nxFile = NxFile.create(name, nxTemplate);
+                setState(DeviceState.ON);
+                logger.info("Created file {} using template {}", name, nxTemplate);
+            } catch (LibpniioException e) {
+                logger.error(String.format("Failed to created file %s using template %s", name, nxTemplate), e);
+                setState(DeviceState.FAULT);
+            }
+        });
+    }
+
+    @Command
+    public void openFile(String fileName) {
         String name = cwd.resolve(fileName).toAbsolutePath().toString();
-        String nxTemplate = this.nxTemplate.toAbsolutePath().toString();
-        nxFile = NxFile.create(name, nxTemplate);
-        logger.info("Created file {} using template {}", name, nxTemplate);
+
+        exec.submit(() -> {
+            try {
+                if (nxFile != null) nxFile.close();
+                nxFile = NxFile.open(name);
+                logger.info("Opened file {}", name);
+                setState(DeviceState.ON);
+            } catch (LibpniioException e) {
+                logger.error(String.format("Failed to open file %s", name), e);
+                setState(DeviceState.FAULT);
+            } catch (IOException e) {
+                logger.error(String.format("Failed to close file %s", nxFile.getFileName()), e);
+                setState(DeviceState.FAULT);
+            }
+        });
     }
 
     @Command
-    @StateMachine(endState = DeviceState.STANDBY)
-    public void openFile(String fileName) throws Exception {
-        if (nxFile != null) nxFile.close();
-
-        String name = cwd.resolve(fileName).toAbsolutePath().toString();
-        nxFile = NxFile.open(name);
-        logger.info("Opened file {}", name);
+    public void closeFile() {
+        exec.submit(() -> {
+            try {
+                if (nxFile == null) return;
+                nxFile.close();
+                logger.info("Closed file {}", nxFile.getFileName());
+                nxFile = null;
+                setState(DeviceState.STANDBY);
+            } catch (IOException e) {
+                logger.error(String.format("Failed to closed file %s", nxFile.getFileName()), e);
+                setState(DeviceState.FAULT);
+            }
+        });
     }
 
     @Command
-    @StateMachine(endState = DeviceState.ON)
-    public void closeFile() throws Exception {
-        if (nxFile == null) return;
-        nxFile.close();
-        logger.info("Closed file {}", nxFile.getFileName());
-        nxFile = null;
-    }
-
-    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeInteger(final int v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, String.valueOf(v));
-                    nxFile.write(nxPath, v, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-        };
-
-        exec.submit(runnable);
+        exec.submit(new WriteTask(new IntegerWriter(v, nxPath)));
     }
 
     @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeLong(final long v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, String.valueOf(v));
-                    nxFile.write(nxPath, v, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-
-        };
-
-        exec.submit(runnable);
+        exec.submit(new WriteTask(new LongWriter(v, nxPath)));
     }
 
+
     @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeFloat(final float v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
-        if (nxPath == null || nxPath.isEmpty())
-            throw new IllegalStateException("nxPath must be set before calling this command!");
+        Preconditions.checkState(nxPath == null || nxPath.isEmpty(), "nxPath must be set before calling this command!");
 
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, String.valueOf(v));
-                    nxFile.write(nxPath, v, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-        };
-
-        exec.submit(runnable);
+        exec.submit(new WriteTask(new FloatWriter(v, nxPath)));
     }
 
     @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeDouble(final double v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, String.valueOf(v));
-                    nxFile.write(nxPath, v, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-        };
-
-        exec.submit(runnable);
+        exec.submit(new WriteTask(new DoubleWriter(v, nxPath)));
     }
 
     @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeString(final String v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
         if (nxPath == null || nxPath.isEmpty())
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, String.valueOf(v));
-                    nxFile.write(nxPath, v, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-        };
-
-        exec.submit(runnable);
-    }
-
-    @Command
-    public void write16bitImage(final short[] data) throws Exception {
-        final String nxPath = clientNxPath.get(getClientId());
-
-        if (nxPath == null || nxPath.isEmpty())
-            throw new IllegalStateException("nxPath must be set before calling this command!");
-
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, "16 bit image");
-                    nxFile.write(nxPath, data, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-        };
-
-        exec.submit(runnable);
-    }
-
-    @Command
-    public void writeARGBImage(final int[] data) throws Exception {
-        final String nxPath = clientNxPath.get(getClientId());
-
-        if (nxPath == null || nxPath.isEmpty())
-            throw new IllegalStateException("nxPath must be set before calling this command!");
-
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, "ARGB image");
-                    nxFile.write(nxPath, data, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-        };
-
-        exec.submit(runnable);
-    }
-
-    @Command
-    public void writeTIFFImage(final float[] data) throws Exception {
-        final String nxPath = clientNxPath.get(getClientId());
-
-        if (nxPath == null || nxPath.isEmpty())
-            throw new IllegalStateException("nxPath must be set before calling this command!");
-
-        Runnable runnable = new Runnable() {
-            public void run() {
-                DataFormatServer.this.setState(DeviceState.RUNNING);
-                try {
-                    log(logger, append, nxPath, "TIFF image");
-                    nxFile.write(nxPath, data, append);
-                    DataFormatServer.this.setState(DeviceState.STANDBY);
-                } catch (LibpniioException e) {
-                    logger.error(e.getMessage(), e);
-                    DataFormatServer.this.setState(DeviceState.FAULT);
-                }
-            }
-        };
-
-        exec.submit(runnable);
+        exec.submit(new WriteTask(new StringWriter(v, nxPath)));
     }
 
     @Init
-    @StateMachine(endState = DeviceState.ON)
-    public void init() throws IOException {
+    @StateMachine(endState = DeviceState.STANDBY)
+    public void init() {
 
     }
 
@@ -437,9 +317,9 @@ public class DataFormatServer {
     @StateMachine(endState = DeviceState.OFF)
     public void delete() throws Exception {
         try {
+            closeFile();
             exec.shutdown();
             exec.awaitTermination(3L, TimeUnit.SECONDS);
-            closeFile();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw e;
@@ -471,13 +351,110 @@ public class DataFormatServer {
             DataFormatServer.this.setState(DeviceState.RUNNING);
             try {
                 writer.write(nxFile);
-                DataFormatServer.this.setState(DeviceState.STANDBY);
+                DataFormatServer.this.setState(DeviceState.ON);
             } catch (IOException e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
                 DataFormatServer.this.setState(DeviceState.FAULT);
             }
         }
     }
+
+    private class DoubleWriter implements NexusWriter {
+        private double v;
+        private String nxPath;
+
+        private DoubleWriter(double v, String nxPath) {
+            this.v = v;
+            this.nxPath = nxPath;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, append);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class FloatWriter implements NexusWriter {
+        private float v;
+        private String nxPath;
+
+        private FloatWriter(float v, String nxPath) {
+            this.v = v;
+            this.nxPath = nxPath;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, append);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class IntegerWriter implements NexusWriter {
+        private int v;
+        private String nxPath;
+
+        private IntegerWriter(int v, String nxPath) {
+            this.v = v;
+            this.nxPath = nxPath;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, append);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class LongWriter implements NexusWriter {
+        private long v;
+        private String nxPath;
+
+
+        private LongWriter(long v, String nxPath) {
+            this.v = v;
+            this.nxPath = nxPath;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, append);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class StringWriter implements NexusWriter {
+        private String v;
+        private String nxPath;
+
+        private StringWriter(String v, String nxPath) {
+            this.v = v;
+            this.nxPath = nxPath;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                file.write(nxPath, v, append);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
 
     public class StatusPipe {
         public void push() {
