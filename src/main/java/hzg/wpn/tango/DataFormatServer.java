@@ -209,11 +209,13 @@ public class DataFormatServer {
             MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
             try {
                 nxFile = NxFile.create(name, nxTemplate);
-                setState(DeviceState.ON);
                 logger.info("Created file {} using template {}", name, nxTemplate);
+                setState(DeviceState.ON);
+                setStatus("NxFile=" + name);
             } catch (LibpniioException e) {
                 logger.error(String.format("Failed to created file %s using template %s", name, nxTemplate), e);
                 setState(DeviceState.FAULT);
+                setStatus(String.format("Failed to created file %s using template %s due to %s, %s", name, nxTemplate, e.getClass().getSimpleName(), e.getMessage()));
             }
         });
     }
@@ -229,12 +231,11 @@ public class DataFormatServer {
                 nxFile = NxFile.open(name);
                 logger.info("Opened file {}", name);
                 setState(DeviceState.ON);
-            } catch (LibpniioException e) {
+                setStatus("NxFile=" + name);
+            } catch (LibpniioException| IOException e) {
                 logger.error(String.format("Failed to open file %s", name), e);
                 setState(DeviceState.FAULT);
-            } catch (IOException e) {
-                logger.error(String.format("Failed to close file %s", nxFile.getFileName()), e);
-                setState(DeviceState.FAULT);
+                setStatus(String.format("Failed to open file %s due to %s, %s", name, e.getClass().getSimpleName(), e.getMessage()));
             }
         });
     }
@@ -249,9 +250,11 @@ public class DataFormatServer {
                 logger.info("Closed file {}", nxFile.getFileName());
                 nxFile = null;
                 setState(DeviceState.STANDBY);
+                setStatus("Please open or create an NxFile!");
             } catch (IOException e) {
                 logger.error(String.format("Failed to closed file %s", nxFile.getFileName()), e);
                 setState(DeviceState.FAULT);
+                setStatus(String.format("Failed to closed file %s due to %s", nxFile.getFileName(), e.getMessage()));
             }
         });
     }
@@ -359,7 +362,8 @@ public class DataFormatServer {
                 DataFormatServer.this.setState(DeviceState.ON);
             } catch (IOException e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
-                DataFormatServer.this.setState(DeviceState.FAULT);
+                DataFormatServer.this.setState(DeviceState.ALARM);
+                DataFormatServer.this.setStatus(String.format("Failed to write into %s due to %s", nxFile.getFileName(), e.getMessage()));
             }
         }
     }
