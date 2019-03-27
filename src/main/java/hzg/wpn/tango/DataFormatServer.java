@@ -13,7 +13,9 @@ import org.tango.server.InvocationContext;
 import org.tango.server.ServerManager;
 import org.tango.server.ServerManagerUtils;
 import org.tango.server.annotation.*;
+import org.tango.server.attribute.AttributeValue;
 import org.tango.server.device.DeviceManager;
+import org.tango.server.events.EventType;
 import org.tango.server.pipe.PipeValue;
 import org.tango.utils.ClientIDUtil;
 import org.tango.utils.DevFailedUtils;
@@ -346,26 +348,9 @@ public class DataFormatServer {
         }
     }
 
-    public class WriteTask implements Runnable {
-        final NexusWriter writer;
-
-        public WriteTask(NexusWriter writer) {
-            this.writer = writer;
-        }
-
-        @Override
-        public void run() {
-            MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
-            DataFormatServer.this.setState(DeviceState.RUNNING);
-            try {
-                writer.write(nxFile);
-                DataFormatServer.this.setState(DeviceState.ON);
-            } catch (IOException e) {
-                DataFormatServer.this.logger.error(e.getMessage(), e);
-                DataFormatServer.this.setState(DeviceState.ALARM);
-                DataFormatServer.this.setStatus(String.format("Failed to write into %s due to %s", nxFile.getFileName(), e.getMessage()));
-            }
-        }
+    private void setAndPushStatus(String status) throws DevFailed {
+        setStatus(status);
+        deviceManager.pushEvent("Status", new AttributeValue(status), EventType.CHANGE_EVENT);
     }
 
     private class DoubleWriter implements NexusWriter {
@@ -460,6 +445,51 @@ public class DataFormatServer {
                 file.write(nxPath, v, append);
             } catch (LibpniioException e) {
                 throw new IOException(e);
+            }
+        }
+    }
+
+    public class WriteTask implements Runnable {
+        final NexusWriter writer;
+
+        public WriteTask(NexusWriter writer) {
+            this.writer = new PushStatusWriter(writer);
+        }
+
+        @Override
+        public void run() {
+            MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
+            DataFormatServer.this.setState(DeviceState.RUNNING);
+            try {
+                writer.write(nxFile);
+                DataFormatServer.this.setState(DeviceState.ON);
+            } catch (IOException e) {
+                DataFormatServer.this.logger.error(e.getMessage(), e);
+                DataFormatServer.this.setState(DeviceState.ALARM);
+                DataFormatServer.this.setStatus(String.format("Failed to write into %s due to %s", nxFile.getFileName(), e.getMessage()));
+            }
+        }
+    }
+
+    private class PushStatusWriter implements NexusWriter {
+        private NexusWriter nested;
+
+        private PushStatusWriter(NexusWriter nested) {
+            this.nested = nested;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                DataFormatServer.this.setAndPushStatus(String.format("Performing %s.write into %s", nested.getClass().getSimpleName(), file.getFileName()));
+            } catch (DevFailed e) {
+                DevFailedUtils.logDevFailed(e, logger);
+            }
+            nested.write(file);
+            try {
+                DataFormatServer.this.setAndPushStatus(String.format("Done %s.write into %s", nested.getClass().getSimpleName(), file.getFileName()));
+            } catch (DevFailed e) {
+                DevFailedUtils.logDevFailed(e, logger);
             }
         }
     }
