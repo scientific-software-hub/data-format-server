@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Contains an array of values associated with an nxPath
@@ -57,7 +55,7 @@ public class GenericBlob implements NexusWriter {
             Class<?> aClass = element.value.getClass().getComponentType();
             for (int i = 0, size = Array.getLength(element.value); i < size; ++i) {
                 try {
-                    DataFormatServer.log(logger, append, element.nxPath, String.valueOf(Array.get(element.value, i)));
+                    logger.debug("{} data to nexus file: {}={}", append ? "Appending" : "Writing", element.nxPath, Array.get(element.value, i));
                     if (aClass == Integer.class || aClass == Short.class ||
                             aClass == Byte.class || aClass == int.class || aClass == short.class ||
                             aClass == byte.class) {
@@ -72,7 +70,7 @@ public class GenericBlob implements NexusWriter {
                         file.write(element.nxPath, String.valueOf(Array.get(element.value, i)), append);
                     }
                 } catch (LibpniioException e) {
-                    logger.warn("Write to NeXus file has failed: {}", e.getMessage());
+                    logger.error("Write to NeXus file has failed: {}", e.getMessage());
                     continue;
                 }
             }

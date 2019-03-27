@@ -50,14 +50,12 @@ public class DataFormatServer {
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
     private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
-    @State
+    @State(isPolled = true, pollingPeriod = 10)
     private volatile DeviceState state;
-    @Status
+    @Status(isPolled = true, pollingPeriod = 10)
     private volatile String status;
     @Pipe
     private volatile PipeValue pipe;
-    @Pipe(name = "status")
-    private volatile PipeValue statusPipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
     @Attribute
@@ -80,26 +78,6 @@ public class DataFormatServer {
     public static void main(String[] args) throws IOException {
         ServerManager.getInstance().start(args, DataFormatServer.class);
         ServerManagerUtils.writePidFile(null);
-    }
-
-    static void log(Logger logger, boolean append, String nxPath, String value) {
-        logger.debug("{} data to nexus file: {}={}", append ? "Appending" : "Writing", nxPath, value);
-    }
-
-    public DeviceState getState() {
-        return state;
-    }
-
-    public void setState(DeviceState newState) {
-        state = newState;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public PipeValue getPipe() {
@@ -126,10 +104,6 @@ public class DataFormatServer {
         }
 
         exec.execute(runnable);
-    }
-
-    public PipeValue getStatusPipe(){
-        return statusPipe;
     }
 
     public void setDeviceManager(DeviceManager manager) {
@@ -494,34 +468,19 @@ public class DataFormatServer {
         }
     }
 
+    public DeviceState getState() {
+        return state;
+    }
 
-    public class StatusPipe {
-        public void push() {
-            update();
-            try {
-                deviceManager.pushPipeEvent("status",toPipeValue());
-            } catch (DevFailed devFailed) {
-                if(getState() == DeviceState.FAULT){
-                    DevFailedUtils.logDevFailed(devFailed, logger);
-                    return; //give up
-                }
+    public void setState(DeviceState newState) {
+        state = newState;
+    }
 
-                DevFailedUtils.logDevFailed(devFailed, logger);
-                setState(DeviceState.FAULT);
-                setStatus(DevFailedUtils.toString(devFailed));
+    public String getStatus() {
+        return status;
+    }
 
-
-                push();
-            }
-        }
-
-        public void update(){
-
-        }
-
-
-        public PipeValue toPipeValue(){
-            return null;
-        }
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
