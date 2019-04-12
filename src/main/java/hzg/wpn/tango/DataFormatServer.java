@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.tango.DeviceState;
+import org.tango.server.ChangeEventPusher;
 import org.tango.server.InvocationContext;
 import org.tango.server.ServerManager;
 import org.tango.server.ServerManagerUtils;
@@ -50,9 +51,9 @@ public class DataFormatServer {
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
     private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
-    @State(isPolled = true, pollingPeriod = 10)
+    @State(isPolled = true)
     private volatile DeviceState state;
-    @Status(isPolled = true, pollingPeriod = 10)
+    @Status(isPolled = true)
     private volatile String status;
     @Pipe
     private volatile PipeValue pipe;
@@ -322,11 +323,6 @@ public class DataFormatServer {
         }
     }
 
-    private void setAndPushStatus(String status) throws DevFailed {
-        setStatus(status);
-        deviceManager.pushEvent("Status", new AttributeValue(status), EventType.CHANGE_EVENT);
-    }
-
     private class DoubleWriter implements NexusWriter {
         private double v;
         private String nxPath;
@@ -427,43 +423,22 @@ public class DataFormatServer {
         final NexusWriter writer;
 
         public WriteTask(NexusWriter writer) {
-            this.writer = new PushStatusWriter(writer);
+            this.writer = writer;
         }
 
         @Override
         public void run() {
             MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
+            DataFormatServer.this.setStatus(String.format("Performing %s.write into %s", writer.getClass().getSimpleName(), nxFile.getFileName()));
             DataFormatServer.this.setState(DeviceState.RUNNING);
             try {
                 writer.write(nxFile);
+                DataFormatServer.this.setStatus(String.format("Done %s.write into %s", writer.getClass().getSimpleName(), nxFile.getFileName()));
                 DataFormatServer.this.setState(DeviceState.ON);
             } catch (IOException e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
                 DataFormatServer.this.setState(DeviceState.ALARM);
                 DataFormatServer.this.setStatus(String.format("Failed to write into %s due to %s", nxFile.getFileName(), e.getMessage()));
-            }
-        }
-    }
-
-    private class PushStatusWriter implements NexusWriter {
-        private NexusWriter nested;
-
-        private PushStatusWriter(NexusWriter nested) {
-            this.nested = nested;
-        }
-
-        @Override
-        public void write(NxFile file) throws IOException {
-            try {
-                DataFormatServer.this.setAndPushStatus(String.format("Performing %s.write into %s", nested.getClass().getSimpleName(), file.getFileName()));
-            } catch (DevFailed e) {
-                DevFailedUtils.logDevFailed(e, logger);
-            }
-            nested.write(file);
-            try {
-                DataFormatServer.this.setAndPushStatus(String.format("Done %s.write into %s", nested.getClass().getSimpleName(), file.getFileName()));
-            } catch (DevFailed e) {
-                DevFailedUtils.logDevFailed(e, logger);
             }
         }
     }
@@ -474,6 +449,7 @@ public class DataFormatServer {
 
     public void setState(DeviceState newState) {
         state = newState;
+        new ChangeEventPusher<>("State",state,deviceManager).run();
     }
 
     public String getStatus() {
@@ -482,5 +458,6 @@ public class DataFormatServer {
 
     public void setStatus(String status) {
         this.status = status;
+        new ChangeEventPusher<>("Status",status,deviceManager).run();
     }
 }
