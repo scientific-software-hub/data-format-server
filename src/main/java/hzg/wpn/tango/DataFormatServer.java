@@ -259,7 +259,8 @@ public class DataFormatServer {
     public void writeFloat(final float v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
-        Preconditions.checkState(nxPath == null || nxPath.isEmpty(), "nxPath must be set before calling this command!");
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
 
         exec.submit(new WriteTask(new FloatWriter(v, nxPath)));
     }
