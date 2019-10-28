@@ -1,7 +1,7 @@
 package hzg.wpn.tango;
 
 import com.google.common.base.Preconditions;
-import fr.esrf.Tango.DevFailed;
+import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeBlobBuilder;
 import hzg.wpn.nexus.libpniio.jni.LibpniioException;
 import hzg.wpn.nexus.libpniio.jni.NxFile;
@@ -14,7 +14,6 @@ import org.tango.server.annotation.*;
 import org.tango.server.device.DeviceManager;
 import org.tango.server.pipe.PipeValue;
 import org.tango.utils.ClientIDUtil;
-import org.tango.utils.DevFailedUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -149,7 +148,8 @@ public class DataFormatServer {
         if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory is expected here: " + tmp.toString());
         this.cwd = tmp;
 
-        pushEvent("cwd", tmp.toAbsolutePath().toString());
+        //TODO do we need to send event here?
+//        pushEvent("cwd", tmp.toAbsolutePath().toString());
     }
 
 
@@ -169,8 +169,8 @@ public class DataFormatServer {
         Path tmp = XENV_ROOT.resolve(nxTemplateName);
         if (!Files.exists(tmp)) throw new IllegalArgumentException(nxTemplateName + " does not exist.");
         nxTemplate = tmp;
-
-        pushEvent("nxTemplate", nxTemplate.toAbsolutePath().toString());
+//TODO do we need to send event here?
+//        pushEvent("nxTemplate", nxTemplate.toAbsolutePath().toString());
     }
 
     @Command
@@ -244,6 +244,21 @@ public class DataFormatServer {
 
     @Command
     @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void writeIntegerArray(final int[] v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(
+                new WriteTask(
+                        new GenericBlob(
+                                toPipeBlob(nxPath, v)
+                        )));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeLong(final long v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
@@ -251,6 +266,36 @@ public class DataFormatServer {
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
         exec.submit(new WriteTask(new LongWriter(v, nxPath)));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void writeLongArray(final long[] v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(
+                new WriteTask(
+                        new GenericBlob(
+                                toPipeBlob(nxPath, v)
+                        )));
+    }
+
+    private PipeBlob toPipeBlob(String nxPath, Object array) {
+        return new PipeBlobBuilder("DataBlob")
+                .add("append", true)
+                .add("data",
+                        new PipeBlobBuilder(nxPath)
+                                .add(nxPath, wrapArray(nxPath, array))
+                                .build())
+                .build();
+    }
+
+    private PipeBlob wrapArray(String nxPath, Object v) {
+        //inner blob
+        return new PipeBlobBuilder(nxPath).add("Array", v).build();
     }
 
 
@@ -267,6 +312,21 @@ public class DataFormatServer {
 
     @Command
     @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void writeFloatArray(final float[] v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(
+                new WriteTask(
+                        new GenericBlob(
+                                toPipeBlob(nxPath, v)
+                        )));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeDouble(final double v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
@@ -278,6 +338,21 @@ public class DataFormatServer {
 
     @Command
     @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void writeDoubleArray(final double[] v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(
+                new WriteTask(
+                        new GenericBlob(
+                                toPipeBlob(nxPath, v)
+                        )));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeString(final String v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
@@ -285,6 +360,21 @@ public class DataFormatServer {
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
         exec.submit(new WriteTask(new StringWriter(v, nxPath)));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void writeStringArray(final String[] v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(
+                new WriteTask(
+                        new GenericBlob(
+                                toPipeBlob(nxPath, v)
+                        )));
     }
 
     @Init
@@ -303,19 +393,6 @@ public class DataFormatServer {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw e;
-        }
-    }
-
-    private void pushEvent(String name, String value) {
-        logger.debug("Sending event: {}={}", name, value);
-
-        PipeBlobBuilder pbb = new PipeBlobBuilder(name);
-        pbb.add(name, value);
-
-        try {
-            deviceManager.pushPipeEvent("status", new PipeValue(pbb.build()));
-        } catch (DevFailed devFailed) {
-            DevFailedUtils.logDevFailed(devFailed, logger);
         }
     }
 
