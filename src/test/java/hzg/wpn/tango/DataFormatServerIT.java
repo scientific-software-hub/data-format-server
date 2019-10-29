@@ -93,9 +93,9 @@ public class DataFormatServerIT {
     public void writeDoubleArray() throws Exception {
         TangoProxy dfs = TangoProxies.newDeviceProxyWrapper("tango://hzgxenvtest.desy.de:10000/development/dfs/0");
 
-//        dfs.executeCommand("openFile", "/home/khokhria/Projects/jDFS/target/var/test.h5");
+        dfs.executeCommand("openFile", "test_writeDoubleArray.h5");
 
-        dfs.executeCommand("createFile", "test_writeDoubleArray.h5");
+//        dfs.executeCommand("createFile", "test_writeDoubleArray.h5");
 
         dfs.writeAttribute("nxPath", "/entry/instrument/detector/distance");
 
