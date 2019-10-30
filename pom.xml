@@ -8,23 +8,16 @@
     <packaging>jar</packaging>
 
     <properties>
-        <scm.project.name>jdataformatserver</scm.project.name>
-        <distribution.project.name>${project.artifactId}</distribution.project.name>
+        <github.organization>hzg-wpi</github.organization>
+        <github.repo>data-format-server</github.repo>
     </properties>
 
     <scm>
-        <connection>scm:hg:https://bitbucket.org/hzgwpn/${scm.project.name}</connection>
-        <developerConnection>scm:hg:ssh://hg@bitbucket.org/hzgwpn/${scm.project.name}</developerConnection>
-        <url>ssh://hg@bitbucket.org/hzgwpn/${scm.project.name}</url>
-      <tag>HEAD</tag>
-  </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>bintray-hzg</id>
-            <url>https://api.bintray.com/maven/hzgde/hzg-wpn-projects/${distribution.project.name}/;publish=1</url>
-        </repository>
-    </distributionManagement>
+        <connection>scm:git:git@github.com:${github.organization}/${github.repo}.git</connection>
+        <developerConnection>scm:git:git@github.com:${github.organization}/${github.repo}.git</developerConnection>
+        <url>https://github.com/${github.organization}/${github.repo}</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <build>
         <plugins>
@@ -119,7 +112,7 @@
         <dependency>
             <groupId>hzg.wpn.nexus</groupId>
             <artifactId>libpniio-jni</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.tango</groupId>
@@ -141,32 +134,30 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.5.0</version>
+                        <groupId>de.jutzig</groupId>
+                        <artifactId>github-release-plugin</artifactId>
+                        <version>1.3.0</version>
                         <executions>
                             <execution>
-                                <id>deploy</id>
-                                <phase>deploy</phase>
+                                <id>release</id>
                                 <goals>
-                                    <goal>exec</goal>
+                                    <goal>release</goal>
                                 </goals>
+                                <phase>
+                                    deploy
+                                </phase>
                                 <configuration>
-                                    <executable>curl</executable>
-                                    <arguments>
-                                        <argument>-s</argument>
-                                        <argument>-u</argument>
-                                        <argument>ingvord:${bitbucket.ingvord.password}</argument>
-                                        <argument>-X</argument>
-                                        <argument>POST</argument>
-                                        <argument>
-                                            https://api.bitbucket.org/2.0/repositories/hzgwpn/jdataformatserver/downloads
-                                        </argument>
-                                        <argument>-F</argument>
-                                        <argument>
-                                            files=@${project.build.directory}/${project.artifactId}-${project.version}.jar
-                                        </argument>
-                                    </arguments>
+                                    <description>Automated release preformed by maven plugin</description>
+                                    <releaseName>${project.artifactId}-${project.version}</releaseName>
+                                    <tag>${project.artifactId}-${project.version}</tag>
+                                    <fileSets>
+                                        <fileSet>
+                                            <directory>${project.build.directory}</directory>
+                                            <includes>
+                                                <include>${project.build.finalName}</include>
+                                            </includes>
+                                        </fileSet>
+                                    </fileSets>
                                 </configuration>
                             </execution>
                         </executions>
