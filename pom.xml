@@ -91,7 +91,7 @@
             <dependency>
                 <groupId>de.hzg.wpi.tango</groupId>
                 <artifactId>tango-server-bom</artifactId>
-                <version>20</version>
+                <version>24</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -115,8 +115,8 @@
             <version>3.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.tango</groupId>
-            <artifactId>ezTangORB</artifactId>
+            <groupId>de.hzg.wpi.tango.client.api</groupId>
+            <artifactId>ezTangoAPI</artifactId>
         </dependency>
         <dependency>
             <groupId>hzg.wpn</groupId>

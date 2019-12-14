@@ -39,15 +39,15 @@ public class DataFormatServer {
     }
 
     private final Logger logger = LoggerFactory.getLogger(DataFormatServer.class);
-    private final ExecutorService exec = Executors.newSingleThreadExecutor();
+    private volatile ExecutorService exec;;
     //clientId -> nxPath
     private final ConcurrentMap<String, String> clientNxPath = new ConcurrentHashMap<>();
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
     private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
-    @State(isPolled = true)
+    @State(isPolled = true, pollingPeriod = 3000)
     private volatile DeviceState state;
-    @Status(isPolled = true)
+    @Status(isPolled = true, pollingPeriod = 3000)
     private volatile String status;
     @Pipe
     private volatile PipeValue pipe;
@@ -70,9 +70,8 @@ public class DataFormatServer {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         ServerManager.getInstance().start(args, DataFormatServer.class);
-        ServerManagerUtils.writePidFile(null);
     }
 
     public PipeValue getPipe() {
@@ -133,7 +132,7 @@ public class DataFormatServer {
     }
 
     @Attribute
-    public String getClientId() throws Exception {
+    public String getClientId() {
         return clientId.get();
     }
 
@@ -145,11 +144,8 @@ public class DataFormatServer {
     @Attribute(isMemorized = true)
     public void setCwd(String cwd) {
         Path tmp = XENV_ROOT.resolve(cwd);
-        if (!Files.isDirectory(tmp)) throw new IllegalArgumentException("Directory is expected here: " + tmp.toString());
+        if (!Files.isDirectory(tmp)) throw new IllegalArgumentException(String.format("Can not set cwd to %s: directory is expected here!", tmp.toString()));
         this.cwd = tmp;
-
-        //TODO do we need to send event here?
-//        pushEvent("cwd", tmp.toAbsolutePath().toString());
     }
 
 
@@ -167,10 +163,14 @@ public class DataFormatServer {
     @Attribute(isMemorized = true)
     public void setNxTemplate(String nxTemplateName) {
         Path tmp = XENV_ROOT.resolve(nxTemplateName);
-        if (!Files.exists(tmp)) throw new IllegalArgumentException(nxTemplateName + " does not exist.");
+        if (!Files.exists(tmp)) throw new IllegalArgumentException(String.format("NeXus template %s does not exist.", nxTemplateName));
         nxTemplate = tmp;
-//TODO do we need to send event here?
-//        pushEvent("nxTemplate", nxTemplate.toAbsolutePath().toString());
+    }
+
+    @Command
+    public void resetAlarmState(){
+        if(getState() == DeviceState.ALARM)
+            deviceManager.pushStateChangeEvent(nxFile != null ? DeviceState.ON: DeviceState.STANDBY);
     }
 
     @Command
@@ -181,13 +181,13 @@ public class DataFormatServer {
             MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
             try {
                 nxFile = NxFile.create(name, nxTemplate);
-                logger.info("Created file {} using template {}", name, nxTemplate);
-                setState(DeviceState.ON);
-                setStatus("NxFile=" + name);
+                logger.debug("Created file {} using template {}", name, nxTemplate);
+                deviceManager.pushStateChangeEvent(DeviceState.ON);
+                deviceManager.pushStatusChangeEvent("NxFile=" + name);
             } catch (LibpniioException e) {
                 logger.error(String.format("Failed to created file %s using template %s", name, nxTemplate), e);
-                setState(DeviceState.FAULT);
-                setStatus(String.format("Failed to created file %s using template %s due to %s, %s", name, nxTemplate, e.getClass().getSimpleName(), e.getMessage()));
+                deviceManager.pushStateChangeEvent(DeviceState.FAULT);
+                deviceManager.pushStatusChangeEvent(String.format("Failed to created file %s using template %s due to %s, %s", name, nxTemplate, e.getClass().getSimpleName(), e.getMessage()));
             }
         });
     }
@@ -201,13 +201,13 @@ public class DataFormatServer {
             try {
                 if (nxFile != null) nxFile.close();
                 nxFile = NxFile.open(name);
-                logger.info("Opened file {}", name);
-                setState(DeviceState.ON);
-                setStatus("NxFile=" + name);
+                logger.debug("Opened file {}", name);
+                deviceManager.pushStateChangeEvent(DeviceState.ON);
+                deviceManager.pushStatusChangeEvent("NxFile=" + name);
             } catch (LibpniioException| IOException e) {
                 logger.error(String.format("Failed to open file %s", name), e);
-                setState(DeviceState.FAULT);
-                setStatus(String.format("Failed to open file %s due to %s, %s", name, e.getClass().getSimpleName(), e.getMessage()));
+                deviceManager.pushStateChangeEvent(DeviceState.FAULT);
+                deviceManager.pushStatusChangeEvent(String.format("Failed to open file %s due to %s, %s", name, e.getClass().getSimpleName(), e.getMessage()));
             }
         });
     }
@@ -221,12 +221,12 @@ public class DataFormatServer {
                 nxFile.close();
                 logger.info("Closed file {}", nxFile.getFileName());
                 nxFile = null;
-                setState(DeviceState.STANDBY);
-                setStatus("Please open or create an NxFile!");
+                deviceManager.pushStateChangeEvent(DeviceState.STANDBY);
+                deviceManager.pushStatusChangeEvent("Please open or create an NxFile!");
             } catch (IOException e) {
                 logger.error(String.format("Failed to closed file %s", nxFile.getFileName()), e);
-                setState(DeviceState.FAULT);
-                setStatus(String.format("Failed to closed file %s due to %s", nxFile.getFileName(), e.getMessage()));
+                deviceManager.pushStateChangeEvent(DeviceState.FAULT);
+                deviceManager.pushStatusChangeEvent(String.format("Failed to closed file %s due to %s", nxFile.getFileName(), e.getMessage()));
             }
         });
     }
@@ -380,7 +380,7 @@ public class DataFormatServer {
     @Init
     @StateMachine(endState = DeviceState.STANDBY)
     public void init() {
-
+        exec = Executors.newSingleThreadExecutor();
     }
 
     @Delete
@@ -502,16 +502,12 @@ public class DataFormatServer {
         @Override
         public void run() {
             MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
-            DataFormatServer.this.setStatus(String.format("Performing %s.write into %s", writer.getClass().getSimpleName(), nxFile.getFileName()));
-            DataFormatServer.this.setState(DeviceState.RUNNING);
+            logger.debug("Performing {}.write into {}", writer.getClass().getSimpleName(), nxFile.getFileName());
             try {
                 writer.write(nxFile);
-                DataFormatServer.this.setStatus(String.format("Done %s.write into %s", writer.getClass().getSimpleName(), nxFile.getFileName()));
-                DataFormatServer.this.setState(DeviceState.ON);
             } catch (IOException e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
-                DataFormatServer.this.setState(DeviceState.ALARM);
-                DataFormatServer.this.setStatus(String.format("Failed to write into %s due to %s", nxFile.getFileName(), e.getMessage()));
+                deviceManager.pushStateChangeEvent(DeviceState.ALARM);
             }
         }
     }
@@ -522,7 +518,6 @@ public class DataFormatServer {
 
     public void setState(DeviceState newState) {
         state = newState;
-        new StateChangeEventPusher(state, deviceManager).run();
     }
 
     public String getStatus() {
@@ -530,7 +525,6 @@ public class DataFormatServer {
     }
 
     public void setStatus(String status) {
-        this.status = status;
-        new ChangeEventPusher<>("Status",status,deviceManager).run();
+        this.status = String.format("%d: %s",System.currentTimeMillis(), status);
     }
 }
