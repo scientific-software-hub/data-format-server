@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.tango.DeviceState;
-import org.tango.server.*;
+import org.tango.server.InvocationContext;
+import org.tango.server.ServerManager;
 import org.tango.server.annotation.*;
 import org.tango.server.device.DeviceManager;
 import org.tango.server.pipe.PipeValue;
@@ -86,9 +87,6 @@ public class DataFormatServer {
         switch (v.getValue().getName()) {
             case "status_server":
                 runnable = new WriteTask(new StatusServerBlob(v.getValue()));
-                break;
-            case "camera":
-                runnable = new WriteTask(new CameraBlob(v.getValue()));
                 break;
             case "any":
                 runnable = new WriteTask(new GenericBlob(v.getValue()));
@@ -505,7 +503,8 @@ public class DataFormatServer {
             logger.debug("Performing {}.write into {}", writer.getClass().getSimpleName(), nxFile.getFileName());
             try {
                 writer.write(nxFile);
-            } catch (IOException e) {
+                nxFile.flush();
+            } catch (IOException | LibpniioException e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
                 deviceManager.pushStateChangeEvent(DeviceState.ALARM);
             }
