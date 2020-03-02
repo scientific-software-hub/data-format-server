@@ -4,7 +4,7 @@
 
     <groupId>hzg.wpn.xenv</groupId>
     <artifactId>DataFormatServer</artifactId>
-    <version>4.17-SNAPSHOT</version>
+    <version>4.17</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -16,7 +16,7 @@
         <connection>scm:git:git@github.com:${github.organization}/${github.repo}.git</connection>
         <developerConnection>scm:git:git@github.com:${github.organization}/${github.repo}.git</developerConnection>
         <url>https://github.com/${github.organization}/${github.repo}</url>
-        <tag>HEAD</tag>
+        <tag>DataFormatServer-4.17</tag>
     </scm>
 
     <build>
