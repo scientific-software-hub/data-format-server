@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>hzg.wpn.xenv</groupId>
+    <groupId>de.hzg.wpi.xenv</groupId>
     <artifactId>DataFormatServer</artifactId>
     <version>4.18-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -105,24 +105,24 @@
             <version>1.9.5</version>
         </dependency>
         <dependency>
-            <groupId>hzg.wpn.nexus</groupId>
+            <groupId>de.hereon.xenv.pniio</groupId>
             <artifactId>libpniio-jni</artifactId>
-            <version>3.1.1</version>
+            <version>3.1.2</version>
         </dependency>
         <dependency>
-            <groupId>de.hzg.wpi.tango.client.api</groupId>
-            <artifactId>ezTangoAPI</artifactId>
-            <version>3.0.0</version>
+            <groupId>de.hereon.tango.client.api</groupId>
+            <artifactId>ez</artifactId>
+            <version>3.0.1</version>
         </dependency>
         <dependency>
-            <groupId>hzg.wpn</groupId>
+            <groupId>de.hereon</groupId>
             <artifactId>utils</artifactId>
-            <version>21</version>
+            <version>22</version>
         </dependency>
         <dependency>
-            <groupId>org.tango-controls</groupId>
-            <artifactId>JTangoServer</artifactId>
-            <version>9.5.18-hzg.7</version>
+            <groupId>de.hereon.tango</groupId>
+            <artifactId>server</artifactId>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
 
@@ -170,9 +170,8 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-            <id>bintray-release</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/hzgde/hzg-wpn-projects</url>
+            <id>github-hzg</id>
+            <url>https://maven.pkg.github.com/hzg-wpi/*</url>
         </repository>
     </repositories>
 </project>
