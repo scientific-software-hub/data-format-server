@@ -1,6 +1,6 @@
 # README #
 
-This project is a part of X-Environment. This Java Tango server uses [libpniio-jni](https://github.com/hzg-wpi/libpniio-jni) to write data into a NeXus file.
+This project is a part of [X-Environment](https://github.com/hzg-wpi/xenv)  (Integrated Control System for High-throughput Tomography experiments). This Java Tango server uses [libpniio-jni](https://github.com/hzg-wpi/libpniio-jni) to write data into a NeXus file.
 
 ## Requirements ##
 
