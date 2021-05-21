@@ -110,8 +110,8 @@ public class DataFormatServer {
     @Attribute
     public void setNxPath(String nxPath) throws Exception {
         String clientId = getClientId();
-        if(NexusWriterHelper.hasMapping(nxPath)) {
-            nxPath = NexusWriterHelper.toNxPath(nxPath);
+        if(NexusWriterHelper.hasMapping("external:" + nxPath)) {
+            nxPath = NexusWriterHelper.toNxPath("external:" + nxPath);
         }
         clientNxPath.put(clientId, nxPath);
     }
