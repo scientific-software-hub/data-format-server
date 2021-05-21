@@ -112,7 +112,7 @@
         <dependency>
             <groupId>de.hereon.tango</groupId>
             <artifactId>ez</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>de.hereon</groupId>
@@ -122,7 +122,7 @@
         <dependency>
             <groupId>de.hereon.tango</groupId>
             <artifactId>server</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </dependency>
     </dependencies>
 
