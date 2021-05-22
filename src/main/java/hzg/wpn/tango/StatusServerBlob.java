@@ -16,13 +16,14 @@ import java.util.Iterator;
  * @author Igor Khokhriakov <igor.khokhriakov@hzg.de>
  * @since 11.07.2015
  */
-public class StatusServerBlob implements NexusWriter {
+public class StatusServerBlob extends NexusWriter {
     private final Logger logger = LoggerFactory.getLogger(GenericBlob.class);
 
     public GenericBlob values = new GenericBlob(true);
     public GenericBlob times = new GenericBlob(true);
 
     public StatusServerBlob(PipeBlob blob) throws DevFailed {
+        super(null);
         for (PipeDataElement dataElement : blob) {
             PipeBlob innerBlob = dataElement.extractPipeBlob();
             String name = innerBlob.getName();

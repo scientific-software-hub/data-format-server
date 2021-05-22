@@ -20,7 +20,7 @@ import java.util.List;
  * @author Igor Khokhriakov <igor.khokhriakov@hzg.de>
  * @since 11.07.2015
  */
-public class GenericBlob implements NexusWriter {
+public class GenericBlob extends NexusWriter {
     private final Logger logger = LoggerFactory.getLogger(GenericBlob.class);
 
     public final List<Element> elements = new ArrayList<>();
@@ -28,10 +28,12 @@ public class GenericBlob implements NexusWriter {
 
 
     public GenericBlob(boolean append) {
+        super(null);
         this.append = append;
     }
 
     public GenericBlob(PipeBlob blob) throws DevFailed {
+        super(null);
         this.append = blob.get(0).extractBooleanArray()[0];
 
 

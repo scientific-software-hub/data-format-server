@@ -110,6 +110,7 @@ public class DataFormatServer {
     @Attribute
     public void setNxPath(String nxPath) throws Exception {
         String clientId = getClientId();
+        //TODO aroundInvoke?
         if(NexusWriterHelper.hasMapping("external:" + nxPath)) {
             nxPath = NexusWriterHelper.toNxPath("external:" + nxPath);
         }
@@ -396,13 +397,12 @@ public class DataFormatServer {
         }
     }
 
-    private class DoubleWriter implements NexusWriter {
+    private class DoubleWriter extends NexusWriter {
         private double v;
-        private String nxPath;
 
         private DoubleWriter(double v, String nxPath) {
+            super(nxPath);
             this.v = v;
-            this.nxPath = nxPath;
         }
 
         @Override
@@ -415,13 +415,12 @@ public class DataFormatServer {
         }
     }
 
-    private class FloatWriter implements NexusWriter {
+    private class FloatWriter extends NexusWriter {
         private float v;
-        private String nxPath;
 
         private FloatWriter(float v, String nxPath) {
+            super(nxPath);
             this.v = v;
-            this.nxPath = nxPath;
         }
 
         @Override
@@ -434,13 +433,12 @@ public class DataFormatServer {
         }
     }
 
-    private class IntegerWriter implements NexusWriter {
+    private class IntegerWriter extends NexusWriter {
         private int v;
-        private String nxPath;
 
         private IntegerWriter(int v, String nxPath) {
+            super(nxPath);
             this.v = v;
-            this.nxPath = nxPath;
         }
 
         @Override
@@ -453,14 +451,13 @@ public class DataFormatServer {
         }
     }
 
-    private class LongWriter implements NexusWriter {
-        private long v;
-        private String nxPath;
+    private class LongWriter extends NexusWriter {
+        long v;
 
 
         private LongWriter(long v, String nxPath) {
+            super(nxPath);
             this.v = v;
-            this.nxPath = nxPath;
         }
 
         @Override
@@ -473,13 +470,12 @@ public class DataFormatServer {
         }
     }
 
-    private class StringWriter implements NexusWriter {
+    private class StringWriter extends NexusWriter {
         private String v;
-        private String nxPath;
 
         private StringWriter(String v, String nxPath) {
+            super(nxPath);
             this.v = v;
-            this.nxPath = nxPath;
         }
 
         @Override
@@ -509,6 +505,7 @@ public class DataFormatServer {
             } catch (IOException | LibpniioException e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
                 deviceManager.pushStateChangeEvent(DeviceState.ALARM);
+                deviceManager.pushStatusChangeEvent(String.format("Failed to write a value into %s in %s due to %s", writer.nxPath ,nxFile.getFileName(), e.getMessage()));
             }
         }
     }
