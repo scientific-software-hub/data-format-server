@@ -4,7 +4,7 @@
 
     <groupId>de.hzg.wpi.xenv</groupId>
     <artifactId>DataFormatServer</artifactId>
-    <version>4.21</version>
+    <version>4.22-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -19,7 +19,7 @@
         <connection>scm:git:git@github.com:${github.organization}/${github.repo}.git</connection>
         <developerConnection>scm:git:git@github.com:${github.organization}/${github.repo}.git</developerConnection>
         <url>https://github.com/${github.organization}/${github.repo}</url>
-        <tag>DataFormatServer-4.21</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <build>
