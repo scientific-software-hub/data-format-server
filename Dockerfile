@@ -15,7 +15,7 @@ ADD target/${JAR_FILE} /app/bin/dfs.jar
 
 ADD etc /app/etc
 
-RUN addgroup --system javauser && adduser -S -s /bin/false -G javauser javauser
+RUN addgroup --system javauser && adduser --shell /bin/false --no-create-home --ingroup javauser javauser
 RUN chown -R javauser /app
 
 USER javauser
