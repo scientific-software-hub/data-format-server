@@ -137,7 +137,7 @@
         <dependency>
             <groupId>de.hereon.xenv.pniio</groupId>
             <artifactId>libpniio-jni</artifactId>
-            <version>4.1</version>
+            <version>4.2</version>
         </dependency>
         <dependency>
             <groupId>de.hereon.tango</groupId>

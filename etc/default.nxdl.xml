@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<definition>
     <group name="entry" type="NXentry">
         <field name="end_time" type="string"/>
         <field name="definition" type="string"/>
@@ -16,6 +14,9 @@
                         <dim index="2" value="512"/>
                         <dim index="3" value="512"/>
                     </dimensions>
+                </field>
+                <field name="file" type="string">
+                    <dimensions rank="1"/>
                 </field>
                 <field name="y_pixel_size" type="float32"/>
                 <field name="distance" type="float32"/>
@@ -71,4 +72,3 @@
             <field name="time" type="uint64"/>
         </group>
     </group>
-</definition>

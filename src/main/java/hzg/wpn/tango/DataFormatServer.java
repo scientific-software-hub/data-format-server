@@ -34,7 +34,7 @@ public class DataFormatServer {
         String xenv_root;
 
         XENV_ROOT = Paths.get(
-                (xenv_root = System.getProperty("XENV_ROOT", System.getenv("XENV_ROOT"))) == null ? "" : xenv_root);
+                (xenv_root = System.getProperty("XENV_ROOT", System.getenv("XENV_ROOT"))) == null ? System.getProperty("user.dir") : xenv_root);
 
 
     }
@@ -54,8 +54,7 @@ public class DataFormatServer {
     private volatile PipeValue pipe;
     @DeviceManagement
     private volatile DeviceManager deviceManager;
-    @Attribute
-    private volatile boolean append;
+
     private ThreadLocal<String> clientId = new ThreadLocal<>();
 
     {
@@ -115,14 +114,6 @@ public class DataFormatServer {
             nxPath = NexusWriterHelper.toNxPath("external:" + nxPath);
         }
         clientNxPath.put(clientId, nxPath);
-    }
-
-    public boolean getAppend() throws Exception {
-        return append;
-    }
-
-    public void setAppend(boolean v) throws Exception {
-        append = v;
     }
 
     @AroundInvoke
@@ -245,6 +236,17 @@ public class DataFormatServer {
 
     @Command
     @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void appendInteger(final int v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(new WriteTask(new IntegerAppender(v, nxPath)));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeIntegerArray(final int[] v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
@@ -267,6 +269,17 @@ public class DataFormatServer {
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
         exec.submit(new WriteTask(new LongWriter(v, nxPath)));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void appendLong(final long v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(new WriteTask(new LongAppender(v, nxPath)));
     }
 
     @Command
@@ -313,6 +326,17 @@ public class DataFormatServer {
 
     @Command
     @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void appendFloat(final float v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(new WriteTask(new FloatAppender(v, nxPath)));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeFloatArray(final float[] v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
@@ -339,6 +363,17 @@ public class DataFormatServer {
 
     @Command
     @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void appendDouble(final double v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(new WriteTask(new DoubleAppender(v, nxPath)));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
     public void writeDoubleArray(final double[] v) throws Exception {
         final String nxPath = clientNxPath.get(getClientId());
 
@@ -361,6 +396,17 @@ public class DataFormatServer {
             throw new IllegalStateException("nxPath must be set before calling this command!");
 
         exec.submit(new WriteTask(new StringWriter(v, nxPath)));
+    }
+
+    @Command
+    @StateMachine(deniedStates = {DeviceState.STANDBY, DeviceState.FAULT})
+    public void appendString(final String v) throws Exception {
+        final String nxPath = clientNxPath.get(getClientId());
+
+        if (nxPath == null || nxPath.isEmpty())
+            throw new IllegalStateException("nxPath must be set before calling this command!");
+
+        exec.submit(new WriteTask(new StringAppender(v, nxPath)));
     }
 
     @Command
@@ -408,7 +454,25 @@ public class DataFormatServer {
         @Override
         public void write(NxFile file) throws IOException {
             try {
-                nxFile.write(nxPath, v, append);
+                nxFile.write(nxPath, v);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class DoubleAppender extends NexusWriter {
+        private double v;
+
+        private DoubleAppender(double v, String nxPath) {
+            super(nxPath);
+            this.v = v;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, true);
             } catch (LibpniioException e) {
                 throw new IOException(e);
             }
@@ -426,7 +490,25 @@ public class DataFormatServer {
         @Override
         public void write(NxFile file) throws IOException {
             try {
-                nxFile.write(nxPath, v, append);
+                nxFile.write(nxPath, v);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class FloatAppender extends NexusWriter {
+        private float v;
+
+        private FloatAppender(float v, String nxPath) {
+            super(nxPath);
+            this.v = v;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, true);
             } catch (LibpniioException e) {
                 throw new IOException(e);
             }
@@ -444,7 +526,25 @@ public class DataFormatServer {
         @Override
         public void write(NxFile file) throws IOException {
             try {
-                nxFile.write(nxPath, v, append);
+                nxFile.write(nxPath, v);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class IntegerAppender extends NexusWriter {
+        private int v;
+
+        private IntegerAppender(int v, String nxPath) {
+            super(nxPath);
+            this.v = v;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, true);
             } catch (LibpniioException e) {
                 throw new IOException(e);
             }
@@ -463,7 +563,26 @@ public class DataFormatServer {
         @Override
         public void write(NxFile file) throws IOException {
             try {
-                nxFile.write(nxPath, v, append);
+                nxFile.write(nxPath, v);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class LongAppender extends NexusWriter {
+        long v;
+
+
+        private LongAppender(long v, String nxPath) {
+            super(nxPath);
+            this.v = v;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                nxFile.write(nxPath, v, true);
             } catch (LibpniioException e) {
                 throw new IOException(e);
             }
@@ -481,7 +600,25 @@ public class DataFormatServer {
         @Override
         public void write(NxFile file) throws IOException {
             try {
-                file.write(nxPath, v, append);
+                file.write(nxPath, v);
+            } catch (LibpniioException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    private class StringAppender extends NexusWriter {
+        private String v;
+
+        private StringAppender(String v, String nxPath) {
+            super(nxPath);
+            this.v = v;
+        }
+
+        @Override
+        public void write(NxFile file) throws IOException {
+            try {
+                file.write(nxPath, v, true);
             } catch (LibpniioException e) {
                 throw new IOException(e);
             }
