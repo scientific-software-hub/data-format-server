@@ -1,5 +1,7 @@
     <group name="entry" type="NXentry">
-        <field name="end_time" type="string"/>
+        <field name="end_time" type="uint64">
+            <dimensions rank="1"/>
+        </field>
         <field name="definition" type="string"/>
         <group name="instrument" type="NXinstrument">
             <group name="source" type="NXsource">
@@ -64,7 +66,7 @@
         <field name="title" type="string"/>
         <group name="data" type="NXdata">
             <link name="image_key" target="/entry/instrument/detector/image_key"/>
-            <link name="rotation_angle" target="/entry/sample/rotation_angle"/>
+            <link name="rotation_angle" target="/entry/instrument/sample/rotation_angle"/>
             <link name="data" target="/entry/instrument/detector/data"/>
         </group>
         <group name="beam_current" type="NXlog">

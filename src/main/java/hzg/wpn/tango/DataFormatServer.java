@@ -44,11 +44,10 @@ public class DataFormatServer {
     //clientId -> nxPath
     private final ConcurrentMap<String, String> clientNxPath = new ConcurrentHashMap<>();
     private volatile Path nxTemplate = XENV_ROOT.resolve("etc/default.nxdl.xml");
-    private volatile Path cwd = XENV_ROOT.resolve("var");
     private volatile NxFile nxFile;
-    @State(isPolled = true, pollingPeriod = 3000)
+    @State
     private volatile DeviceState state;
-    @Status(isPolled = true, pollingPeriod = 3000)
+    @Status
     private volatile String status;
     @Pipe
     private volatile PipeValue pipe;
@@ -59,15 +58,6 @@ public class DataFormatServer {
 
     {
         logger.debug("XENV_ROOT=" + XENV_ROOT);
-    }
-
-    {
-        try {
-            Files.createDirectories(cwd);
-        } catch (IOException e) {
-            logger.error("Can not create cwd: " + cwd.toAbsolutePath().toString(), e);
-            throw new RuntimeException(e);
-        }
     }
 
     public static void main(String[] args) {
@@ -128,19 +118,6 @@ public class DataFormatServer {
         return clientId.get();
     }
 
-    @Attribute(isMemorized = true)
-    public String getCwd() {
-        return cwd.toAbsolutePath().toString();
-    }
-
-    @Attribute(isMemorized = true)
-    public void setCwd(String cwd) {
-        Path tmp = XENV_ROOT.resolve(cwd);
-        if (!Files.isDirectory(tmp)) throw new IllegalArgumentException(String.format("Can not set cwd to %s: directory is expected here!", tmp.toString()));
-        this.cwd = tmp;
-    }
-
-
     @Attribute
     @StateMachine(deniedStates = DeviceState.ON)
     public String getNxFile() {
@@ -159,15 +136,9 @@ public class DataFormatServer {
         nxTemplate = tmp;
     }
 
-    @Command
-    public void resetAlarmState(){
-        if(getState() == DeviceState.ALARM)
-            deviceManager.pushStateChangeEvent(nxFile != null ? DeviceState.ON: DeviceState.STANDBY);
-    }
-
-    @Command
+    @Command(inTypeDesc = "Absolute or relative output file name")
     public void createFile(String fileName) {
-        final String name = cwd.resolve(fileName).toAbsolutePath().toString();
+        final String name = Paths.get(fileName).toAbsolutePath().toString();
         final String nxTemplate = this.nxTemplate.toAbsolutePath().toString();
         exec.submit(() -> {
             MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
@@ -184,9 +155,9 @@ public class DataFormatServer {
         });
     }
 
-    @Command
+    @Command(inTypeDesc = "Absolute or relative output file name")
     public void openFile(String fileName) {
-        String name = cwd.resolve(fileName).toAbsolutePath().toString();
+        String name = Paths.get(fileName).toAbsolutePath().toString();
 
         exec.submit(() -> {
             MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());

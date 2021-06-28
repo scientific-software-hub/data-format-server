@@ -1,5 +1,6 @@
 package hzg.wpn.tango;
 
+import fr.esrf.Tango.DevState;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+
+import static junit.framework.TestCase.assertSame;
 
 /**
  * @author khokhria
@@ -34,7 +37,7 @@ public class DataFormatServerIT {
     };
 
     private String getTestFileOutputName(){
-        return "test_"+testName+".h5";
+        return "target/test_"+testName+".h5";
     }
 
     @Before
@@ -204,5 +207,21 @@ public class DataFormatServerIT {
         dfs.executeCommand("writeLongArray", longs);
 
         dfs.executeCommand("closeFile", null);
+    }
+
+    @Test
+    @Category(Integration.class)
+    public void createNonExisting() throws Exception {
+        TangoProxy dfs = TangoProxies.newDeviceProxyWrapper(TEST_DEVICE);
+
+//        dfs.executeCommand("openFile", "/home/khokhria/Projects/jDFS/target/var/test.h5");
+
+        dfs.executeCommand("createFile", "/tmp/x/y/z.h5");
+
+        dfs.executeCommand("closeFile", null);
+
+        DevState state = dfs.readAttribute("State");
+
+        assertSame(DevState.FAULT, state);
     }
 }
