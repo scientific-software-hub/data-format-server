@@ -609,8 +609,8 @@ public class DataFormatServer {
             logger.debug("Performing {}.write into {}", writer.getClass().getSimpleName(), nxFile.getFileName());
             try {
                 writer.write(nxFile);
-                nxFile.flush();
-            } catch (IOException | LibpniioException e) {
+//                nxFile.flush();
+            } catch (IOException /*| LibpniioException */e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
                 deviceManager.pushStateChangeEvent(DeviceState.ALARM);
                 deviceManager.pushStatusChangeEvent(String.format("Failed to write a value into %s in %s due to %s", writer.nxPath ,nxFile.getFileName(), e.getMessage()));
