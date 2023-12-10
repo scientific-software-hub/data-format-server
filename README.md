@@ -11,3 +11,5 @@ Due to libpniio-jni limitation this server can be run only on Debian wheezy. All
 
 
 Have fun!
+
+`docker run --rm --net host -e TANGO_HOST=localhost:10000 -v /tmp:/mnt -v /opt/xenv/hq/etc/DataFormatServer:/app/etc:ro -d hzhereon/data-format-server:5.1`
