@@ -4,15 +4,15 @@
 
     <groupId>de.hzg.wpi.xenv</groupId>
     <artifactId>DataFormatServer</artifactId>
-    <version>5.8-SNAPSHOT</version>
+    <version>6.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
-        <github.organization>hereon-wpi</github.organization>
+        <github.organization>scientific-software-hub</github.organization>
         <github.repo>data-format-server</github.repo>
         <dockerhub.username>hzhereon</dockerhub.username>
         <dockerhub.repo>data-format-server</dockerhub.repo>
-        <jtango.ver>1.0.6</jtango.ver>
+        <jtango.ver>1.6.2</jtango.ver>
     </properties>
 
     <scm>
@@ -119,21 +119,21 @@
         <dependency>
             <groupId>de.hereon.xenv.pniio</groupId>
             <artifactId>libpniio-jni</artifactId>
-            <version>4.5</version>
+            <version>4.6</version>
         </dependency>
         <dependency>
-            <groupId>de.hereon.tango</groupId>
+            <groupId>org.waltz.tango</groupId>
             <artifactId>ez</artifactId>
             <version>${jtango.ver}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>de.hereon</groupId>
+            <groupId>org.waltz.tango</groupId>
             <artifactId>utils</artifactId>
-            <version>22</version>
+            <version>${jtango.ver}</version>
         </dependency>
         <dependency>
-            <groupId>de.hereon.tango</groupId>
+            <groupId>org.waltz.tango</groupId>
             <artifactId>server</artifactId>
             <version>${jtango.ver}</version>
         </dependency>
@@ -236,8 +236,8 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-            <id>github-hzg</id>
-            <url>https://maven.pkg.github.com/hereon-wpi/*</url>
+            <id>github-upstream</id>
+            <url>https://maven.pkg.github.com/scientific-software-hub/*</url>
         </repository>
     </repositories>
 </project>
