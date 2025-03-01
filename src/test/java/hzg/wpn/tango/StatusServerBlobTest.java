@@ -2,7 +2,6 @@ package hzg.wpn.tango;
 
 import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeBlobBuilder;
-import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
