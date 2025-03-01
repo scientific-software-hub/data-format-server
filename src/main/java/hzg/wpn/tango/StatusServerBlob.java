@@ -5,7 +5,6 @@ import fr.esrf.TangoApi.DevicePipe;
 import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeDataElement;
 import fr.esrf.TangoApi.PipeScanner;
-import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

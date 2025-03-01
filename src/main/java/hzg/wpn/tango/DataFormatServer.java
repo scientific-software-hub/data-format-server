@@ -3,8 +3,6 @@ package hzg.wpn.tango;
 import com.google.common.base.Preconditions;
 import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeBlobBuilder;
-import hzg.wpn.nexus.libpniio.jni.LibpniioException;
-import hzg.wpn.nexus.libpniio.jni.NxFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -143,11 +141,11 @@ public class DataFormatServer {
         exec.submit(() -> {
             MDC.setContextMap(deviceManager.getDevice().getMdcContextMap());
             try {
-                nxFile = NxFile.create(name, nxTemplate);
+                nxFile = new NxFile(name, nxTemplate);
                 logger.debug("Created file {} using template {}", name, nxTemplate);
                 deviceManager.pushStateChangeEvent(DeviceState.ON);
                 deviceManager.pushStatusChangeEvent("NxFile=" + name);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 logger.error(String.format("Failed to created file %s using template %s", name, nxTemplate), e);
                 deviceManager.pushStateChangeEvent(DeviceState.FAULT);
                 deviceManager.pushStatusChangeEvent(String.format("Failed to created file %s using template %s due to %s, %s", name, nxTemplate, e.getClass().getSimpleName(), e.getMessage()));
@@ -167,7 +165,7 @@ public class DataFormatServer {
                 logger.debug("Opened file {}", name);
                 deviceManager.pushStateChangeEvent(DeviceState.ON);
                 deviceManager.pushStatusChangeEvent("NxFile=" + name);
-            } catch (LibpniioException| IOException e) {
+            } catch (Exception e) {
                 logger.error(String.format("Failed to open file %s", name), e);
                 deviceManager.pushStateChangeEvent(DeviceState.FAULT);
                 deviceManager.pushStatusChangeEvent(String.format("Failed to open file %s due to %s, %s", name, e.getClass().getSimpleName(), e.getMessage()));
@@ -186,7 +184,7 @@ public class DataFormatServer {
                 nxFile = null;
                 deviceManager.pushStateChangeEvent(DeviceState.STANDBY);
                 deviceManager.pushStatusChangeEvent("Please open or create an NxFile!");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.error(String.format("Failed to closed file %s", nxFile.getFileName()), e);
                 deviceManager.pushStateChangeEvent(DeviceState.FAULT);
                 deviceManager.pushStatusChangeEvent(String.format("Failed to closed file %s due to %s", nxFile.getFileName(), e.getMessage()));
@@ -426,7 +424,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 nxFile.write(nxPath, v);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -441,12 +439,8 @@ public class DataFormatServer {
         }
 
         @Override
-        public void write(NxFile file) throws IOException {
-            try {
-                nxFile.write(nxPath, v, true);
-            } catch (LibpniioException e) {
-                throw new IOException(e);
-            }
+        public void write(NxFile file) throws Exception {
+            nxFile.write(nxPath, v, true);
         }
     }
 
@@ -462,7 +456,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 nxFile.write(nxPath, v);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -480,7 +474,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 nxFile.write(nxPath, v, true);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -498,7 +492,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 nxFile.write(nxPath, v);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -516,7 +510,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 nxFile.write(nxPath, v, true);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -535,7 +529,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 nxFile.write(nxPath, v);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -554,7 +548,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 nxFile.write(nxPath, v, true);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -572,7 +566,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 file.write(nxPath, v);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -590,7 +584,7 @@ public class DataFormatServer {
         public void write(NxFile file) throws IOException {
             try {
                 file.write(nxPath, v, true);
-            } catch (LibpniioException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -610,7 +604,7 @@ public class DataFormatServer {
             try {
                 writer.write(nxFile);
 //                nxFile.flush();
-            } catch (IOException /*| LibpniioException */e) {
+            } catch (Exception /*| LibpniioException */e) {
                 DataFormatServer.this.logger.error(e.getMessage(), e);
                 deviceManager.pushStateChangeEvent(DeviceState.ALARM);
                 deviceManager.pushStatusChangeEvent(String.format("Failed to write a value into %s in %s due to %s", writer.nxPath ,nxFile.getFileName(), e.getMessage()));
