@@ -23,7 +23,7 @@ public class NxFile {
     private final Logger logger = LoggerFactory.getLogger(NxFile.class);
 
     private final WritableHdfFile h5File;
-    private final ConcurrentMap<String, WritableNode> nxPathMapping = new ConcurrentHashMap<>();
+    final ConcurrentMap<String, WritableNode> nxPathMapping = new ConcurrentHashMap<>();
 
 
     public NxFile(String path, String template) throws Exception {
@@ -147,27 +147,5 @@ public class NxFile {
 
     public WritableHdfFile getH5File(){
         return h5File;
-    }
-
-    public WritableGroup followThePath(String path){
-        var result = nxPathMapping.get(path);
-        if(result == null){
-            result = recursivelyCreateNode(
-                    Arrays.stream(path.split("/")).skip(1).collect(Collectors.toList()).iterator(),
-                    h5File);
-        }
-        return (WritableGroup) result;
-    }
-
-
-    private WritableNode recursivelyCreateNode(Iterator<String> path, WritableGroup parent) {
-        if(path.hasNext()) {
-            String next = path.next();
-            WritableGroup newGroup = new WritableGroupImpl(parent, next);
-            var oldGroup = (WritableGroup) nxPathMapping.putIfAbsent(parent.getName() + next, newGroup);
-            return recursivelyCreateNode(path, oldGroup == null ? newGroup : oldGroup);
-        } else {
-            return parent;
-        }
     }
 }
