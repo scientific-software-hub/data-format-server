@@ -5,7 +5,17 @@
         </encoder>
     </appender>
 
+    <!-- Async Wrapper for Console Appender -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>256</queueSize> <!-- Adjust as needed -->
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
+
+    <!-- Set INFO level for org.jacorb -->
+    <logger name="org.jacorb" level="INFO" />
+
     <root level="debug">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ASYNC_CONSOLE" />
     </root>
 </configuration>
