@@ -5,11 +5,13 @@ import io.jhdf.HdfFile;
 import io.jhdf.WritableDatasetImpl;
 import io.jhdf.WritableGroupImpl;
 import io.jhdf.WritableHdfFile;
+import io.jhdf.api.WritableDataset;
 import io.jhdf.api.WritableGroup;
 import io.jhdf.api.WritableNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -49,18 +51,28 @@ public class NxFile {
     private void write(String nxPath, Object v){
         var pgroup = (WritableGroup) nxPathMapping.get(nxPath.substring(0, nxPath.lastIndexOf("/")));
         if(pgroup == null) throw new IllegalArgumentException("No such nxPath: " + nxPath);
-        var dataset = new WritableDatasetImpl(v, nxPath.substring(nxPath.lastIndexOf("/")), pgroup);
+        var dataset = pgroup.putDataset(nxPath.substring(nxPath.lastIndexOf("/") + 1), v);
         nxPathMapping.putIfAbsent(nxPath, dataset);
     }
 
     private void append(String nxPath, Object newData) {
-        throw new UnsupportedOperationException();
+        var dataset = (WritableDataset) nxPathMapping.get(nxPath);
+        if(dataset == null) write(nxPath, newData);
+        else {
+            var data = dataset.getData();
+            var length1 = Array.getLength(data);
+            var length2 = Array.getLength(newData);
+            var result = Array.newInstance(data.getClass().getComponentType(), length1 + length2);
+            System.arraycopy(data, 0, result, 0, length1);
+            System.arraycopy(newData, 0, result, length1, length2);
+            nxPathMapping.put(nxPath, ((WritableGroup)dataset.getParent()).putDataset(dataset.getName(), result));
+        }
     }
 
 
     public void write(String nxPath, String v, boolean append) {
         if(append){
-            append(nxPath, v);
+            append(nxPath, new String[]{v});
         } else {
             write(nxPath, new String[]{v});
         }
@@ -71,7 +83,7 @@ public class NxFile {
 
     public void write(String nxPath, double v, boolean append) {
         if(append){
-            append(nxPath, v);
+            append(nxPath, new double[]{v});
         } else {
             write(nxPath, new double[]{v});
         }
@@ -83,7 +95,7 @@ public class NxFile {
 
     public void write(String nxPath, float v, boolean append) throws Exception {
         if(append){
-            append(nxPath, v);
+            append(nxPath, new float[]{v});
         } else {
             write(nxPath, new float[]{v});
         }
@@ -95,7 +107,7 @@ public class NxFile {
 
     public void write(String nxPath, long v, boolean append) throws Exception {
         if(append){
-            append(nxPath, v);
+            append(nxPath, new long[]{v});
         } else {
             write(nxPath, new long[]{v});
         }
@@ -106,7 +118,7 @@ public class NxFile {
 
     public void write(String nxPath, int v, boolean append) throws Exception {
         if(append){
-            append(nxPath, v);
+            append(nxPath, new int[]{v});
         } else {
             write(nxPath, new int[]{v});
         }
@@ -117,7 +129,7 @@ public class NxFile {
 
     public void write(String nxPath, short v, boolean append) throws Exception {
         if(append){
-            append(nxPath, v);
+            append(nxPath, new short[]{v});
         } else {
             write(nxPath, new short[]{v});
         }

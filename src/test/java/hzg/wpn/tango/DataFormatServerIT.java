@@ -175,6 +175,27 @@ public class DataFormatServerIT {
 
     @Test
     @Category(Integration.class)
+    public void writeDoubleArrayWithFlush() throws Exception {
+        TangoProxy dfs = TangoProxies.newDeviceProxyWrapper(TEST_DEVICE);
+
+        dfs.executeCommand("createFile", getTestFileOutputName());
+
+//        dfs.executeCommand("createFile", "test_writeDoubleArray.h5");
+
+        dfs.writeAttribute("nxPath", "/entry/instrument/detector/distance");
+
+        double[] doubles = new double[500];
+        Arrays.setAll(doubles, p -> Math.random());
+        dfs.executeCommand("writeDoubleArray", doubles);
+        dfs.executeCommand("flush", null);
+
+        Arrays.setAll(doubles, p -> Math.random());
+        dfs.executeCommand("writeDoubleArray", doubles);
+        dfs.executeCommand("closeFile", null);
+    }
+
+    @Test
+    @Category(Integration.class)
     public void writeStringArray() throws Exception {
         TangoProxy dfs = TangoProxies.newDeviceProxyWrapper(TEST_DEVICE);
 
