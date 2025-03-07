@@ -2,8 +2,6 @@ package org.waltz.nexus;
 
 
 import io.jhdf.HdfFile;
-import io.jhdf.WritableDatasetImpl;
-import io.jhdf.WritableGroupImpl;
 import io.jhdf.WritableHdfFile;
 import io.jhdf.api.WritableDataset;
 import io.jhdf.api.WritableGroup;
@@ -11,21 +9,25 @@ import io.jhdf.api.WritableNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.lang.reflect.Array;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 import static org.waltz.nexus.NxdlParser.ROOT_PATH;
 
+/**
+ * This class is {@link NotThreadSafe} and must be isolated in a dedicated thread
+ *
+ */
+@NotThreadSafe
 public class NxFile {
     private final Logger logger = LoggerFactory.getLogger(NxFile.class);
 
     private final WritableHdfFile h5File;
     final ConcurrentMap<String, WritableNode> nxPathMapping = new ConcurrentHashMap<>();
+    private final long open;
 
 
     public NxFile(String path, String template) throws Exception {
@@ -38,24 +40,28 @@ public class NxFile {
         while (iterator.hasNext()) {
             iterator.next().create(this);
         }
+        open = System.currentTimeMillis();
+        logger.info("Opened h5 file {} at {}", path, open);
     }
 
     private NxFile(WritableHdfFile h5File) {
         this.h5File = h5File;
+        open = System.currentTimeMillis();
+        logger.info("Opened h5 file {} at {}", h5File.getPath(), open);
     }
 
     public static NxFile open(String path) {
         return new NxFile(HdfFile.write(Paths.get(path)));
     }
 
-    private void write(String nxPath, Object v){
+    public void write(String nxPath, Object v){
         var pgroup = (WritableGroup) nxPathMapping.get(nxPath.substring(0, nxPath.lastIndexOf("/")));
         if(pgroup == null) throw new IllegalArgumentException("No such nxPath: " + nxPath);
         var dataset = pgroup.putDataset(nxPath.substring(nxPath.lastIndexOf("/") + 1), v);
         nxPathMapping.putIfAbsent(nxPath, dataset);
     }
 
-    private void append(String nxPath, Object newData) {
+    public void append(String nxPath, Object newData) {
         var dataset = (WritableDataset) nxPathMapping.get(nxPath);
         if(dataset == null) write(nxPath, newData);
         else {
@@ -143,6 +149,9 @@ public class NxFile {
 
     public void close() {
         h5File.close();
+        long close = System.currentTimeMillis();
+        long delta = close - open;
+        logger.info("Closed h5 at {}. Total time {} ms", close, delta);
     }
 
     public String getFileName() {

@@ -54,27 +54,11 @@ public class GenericBlob extends NexusWriter {
     public void write(NxFile file) {
         for (Element element : elements) {
             Class<?> aClass = element.value.getClass().getComponentType();
-            for (int i = 0, size = Array.getLength(element.value); i < size; ++i) {
-                try {
-                    logger.debug("{} data to nexus file: {}={}", append ? "Appending" : "Writing", element.nxPath, Array.get(element.value, i));
-                    if (aClass == Integer.class || aClass == Short.class ||
-                            aClass == Byte.class || aClass == int.class || aClass == short.class ||
-                            aClass == byte.class) {
-                        file.write(element.nxPath, Array.getInt(element.value, i), append);
-                    } else if (aClass == Long.class || aClass == long.class) {
-                        file.write(element.nxPath, Array.getLong(element.value, i), append);
-                    } else if (aClass == Float.class || aClass == float.class) {
-                        file.write(element.nxPath, Array.getFloat(element.value, i), append);
-                    } else if (aClass == Double.class || aClass == double.class) {
-                        file.write(element.nxPath, Array.getDouble(element.value, i), append);
-                    } else {
-                        file.write(element.nxPath, String.valueOf(Array.get(element.value, i)), append);
-                    }
-                } catch (Exception e) {
-                    logger.error("Write to NeXus file has failed: {}", e.getMessage());
-                    continue;
-                }
-            }
+
+            if(append)
+                file.append(element.nxPath, element.value);
+            else
+                file.write(element.nxPath, element.value);
         }
     }
 

@@ -166,7 +166,7 @@ public class DataFormatServerIT {
 
         dfs.writeAttribute("nxPath", "/entry/instrument/detector/distance");
 
-        double[] doubles = new double[1000];
+        double[] doubles = new double[100_000];
         Arrays.setAll(doubles, p -> Math.random());
         dfs.executeCommand("writeDoubleArray", doubles);
 
