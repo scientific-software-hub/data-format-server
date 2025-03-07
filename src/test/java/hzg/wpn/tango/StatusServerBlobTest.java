@@ -2,8 +2,8 @@ package hzg.wpn.tango;
 
 import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeBlobBuilder;
-import org.waltz.nexus.NxFile;
 import org.junit.Test;
+import org.waltz.nexus.NxFile;
 
 import static org.mockito.Mockito.*;
 
@@ -27,18 +27,13 @@ public class StatusServerBlobTest {
 
         instance.write(mockFile);
 
-        verify(mockFile, atLeastOnce()).write("/entry/int/value", 1, true);
-        verify(mockFile, atLeastOnce()).write("/entry/int/value", 2, true);
-        verify(mockFile, atLeastOnce()).write("/entry/int/value", 3, true);
-        verify(mockFile, atLeast(3)).write(eq("/entry/int/time"), anyLong(), eq(true));
+        verify(mockFile, atLeastOnce()).append("/entry/int/value", new int[]{1, 2, 3});
+        verify(mockFile, atLeastOnce()).append(eq("/entry/int/time"), anyObject());
 
-        verify(mockFile, atLeastOnce()).write("/entry/long/value", 1001L, true);
-        verify(mockFile, atLeastOnce()).write("/entry/long/value", 1002L, true);
-        verify(mockFile, atLeastOnce()).write("/entry/long/value", 1003L, true);
-        verify(mockFile, atLeast(3)).write(eq("/entry/long/time"), anyLong(), eq(true));
+        verify(mockFile, atLeastOnce()).append("/entry/long/value", new long[]{1001L, 1002L, 1003L});
+        verify(mockFile, atLeastOnce()).append(eq("/entry/long/time"), anyObject());
 
-        verify(mockFile, atLeastOnce()).write("/entry/float/value", 3.14F, true);
-        verify(mockFile, atLeastOnce()).write("/entry/float/value", 2.78F, true);
-        verify(mockFile, atLeast(2)).write(eq("/entry/float/time"), anyLong(), eq(true));
+        verify(mockFile, atLeastOnce()).append("/entry/float/value", new float[]{3.14F, 2.78F});
+        verify(mockFile, atLeastOnce()).append(eq("/entry/float/time"), anyObject());
     }
 }

@@ -45,11 +45,13 @@ public class NxFile {
     }
 
     private NxFile(WritableHdfFile h5File) {
+        logger.warn("This overrides existing hdf structure");
         this.h5File = h5File;
         open = System.currentTimeMillis();
         logger.info("Opened h5 file {} at {}", h5File.getPath(), open);
     }
 
+    //TODO this is basically broken, as the newly opened file overwrites all the structure from the template
     public static NxFile open(String path) {
         return new NxFile(HdfFile.write(Paths.get(path)));
     }

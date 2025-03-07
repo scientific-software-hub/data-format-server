@@ -187,8 +187,10 @@ public class DataFormatServerIT {
         double[] doubles = new double[500];
         Arrays.setAll(doubles, p -> Math.random());
         dfs.executeCommand("writeDoubleArray", doubles);
-        dfs.executeCommand("flush", null);
+        dfs.executeCommand("closeFile", null);
 
+
+        dfs.executeCommand("openFile", getTestFileOutputName());
         Arrays.setAll(doubles, p -> Math.random());
         dfs.executeCommand("writeDoubleArray", doubles);
         dfs.executeCommand("closeFile", null);
