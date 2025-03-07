@@ -122,6 +122,11 @@
             <version>2.6.1</version>
         </dependency>
         <dependency>
+            <groupId>io.jhdf</groupId>
+            <artifactId>jhdf</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.waltz.tango</groupId>
             <artifactId>ez</artifactId>
             <version>${jtango.ver}</version>

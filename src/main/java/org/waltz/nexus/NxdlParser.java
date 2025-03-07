@@ -20,7 +20,7 @@ public class NxdlParser {
         this.nxdlTemplate = nxdlTemplate;
     }
 
-    private static final String ROOT_PATH = "/";
+    public static final String ROOT_PATH = "/";
 
     public void parse() throws Exception {
         File xmlFile = new File(nxdlTemplate);

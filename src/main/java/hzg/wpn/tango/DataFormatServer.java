@@ -3,6 +3,7 @@ package hzg.wpn.tango;
 import com.google.common.base.Preconditions;
 import fr.esrf.TangoApi.PipeBlob;
 import fr.esrf.TangoApi.PipeBlobBuilder;
+import org.waltz.nexus.NxFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;

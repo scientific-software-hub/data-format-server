@@ -1,5 +1,7 @@
 package hzg.wpn.tango;
 
+import org.waltz.nexus.NxFile;
+
 /**
  * @author Igor Khokhriakov <igor.khokhriakov@hzg.de>
  * @since 13.07.2015
